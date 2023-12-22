@@ -3,7 +3,6 @@
 import { Comment, SimplePost } from '@/model/post';
 import Image from 'next/image';
 import ActionBar from './ActionBar';
-import CommentForm from './CommentForm';
 import { useState } from 'react';
 import PostModal from './PostModal';
 import PostDetail from './PostDetail';
@@ -37,13 +36,13 @@ export default function PostListCard({ post, priority = false }: Props) {
         onClick={() => setOpenModal(true)}
       />
       <ActionBar post={post} onComment={handlePostComment}>
-        <p>
+        <p className="mb-1">
           <span className="font-bod mr-1">{username}</span>
           {text}
         </p>
         {comments > 1 && (
           <button
-            className="font-bold my-2 text-sky-700"
+            className="font-bold mb-1 text-sky-700 md:my-2"
             onClick={() => setOpenModal(true)}
           >{`View all ${comments} comments`}</button>
         )}

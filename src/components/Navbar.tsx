@@ -42,7 +42,7 @@ export default function Navbar() {
 
   const pathName = usePathname();
   return (
-    <div className="flex justify-between items-center px-2 xsm:px-6">
+    <div className="flex justify-between items-center px-4 xsm:px-6">
       <Link href="/" aria-label="Home" className="w-6	xsm:w-auto">
         <h1
           className={`
@@ -54,7 +54,7 @@ export default function Navbar() {
         </h1>
       </Link>
       <nav>
-        <ul className="flex gap-4 items-center p-4">
+        <ul className="flex gap-3 items-center p-1 xsm:p-4 xsm:gap-4">
           {menu.map((item) => (
             <li key={item.href}>
               <Link href={item.href} aria-label={item.title}>

@@ -38,7 +38,7 @@ export default function ActionBar({ post, children, onComment }: Props) {
 
   return (
     <>
-      <div className="flex justify-between my-2 px-4">
+      <div className={`${children ? 'my-1' : 'my-0'} md:my-2 flex justify-between px-4`}>
         <ToggleButton
           title={liked ? 'unlike' : 'like'}
           toggled={liked}
@@ -54,10 +54,10 @@ export default function ActionBar({ post, children, onComment }: Props) {
           offIcon={<BookmarkIcon />}
         />
       </div>
-      <div className="px-4 py-1">
-        <p className="text-sm font-bold mb-2">{`${likes?.length ?? 0} ${likes?.length > 1 ? 'likes' : 'like'}`}</p>
+      <div className={`${children ? '' : 'flex items-center gap-2 md:block'} px-4 py-1`}>
+        <p className={`text-sm font-bold md:mb-2`}>{`${likes?.length ?? 0} ${likes?.length > 1 ? 'likes' : 'like'}`}</p>
         {children}
-        <p className="text-xs text-neutral-500 uppercase my-2">{parseDate(createdAt)}</p>
+        <p className="text-xs text-neutral-500 uppercase md:my-2">{parseDate(createdAt)}</p>
       </div>
       <CommentForm onPostComment={handleComment} />
     </>
