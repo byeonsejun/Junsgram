@@ -18,16 +18,19 @@ const menu = [
     href: '/',
     icon: <HomeIcon />,
     clickedIcon: <HomeFillIcon />,
+    title: 'Home',
   },
   {
     href: '/search',
     icon: <SearchIcon />,
     clickedIcon: <SearchFillIcon />,
+    title: 'Search user',
   },
   {
     href: '/new',
     icon: <NewIcon />,
     clickedIcon: <NewFillIcon />,
+    title: 'New post',
   },
 ];
 
@@ -38,19 +41,21 @@ export default function Navbar() {
   const pathName = usePathname();
   return (
     <div className="flex justify-between items-center px-6">
-      <Link href="/">
+      <Link href="/" aria-label="Home">
         <h1 className="text-3xl font-bold">Junsgram</h1>
       </Link>
       <nav>
         <ul className="flex gap-4 items-center p-4">
           {menu.map((item) => (
             <li key={item.href}>
-              <Link href={item.href}>{pathName === item.href ? item.clickedIcon : item.icon}</Link>
+              <Link href={item.href} aria-label={item.title}>
+                {pathName === item.href ? item.clickedIcon : item.icon}
+              </Link>
             </li>
           ))}
           {user && ( //
             <li>
-              <Link href={`/user/${user.username}`}>
+              <Link href={`/user/${user.username}`} aria-label="User page">
                 <Avatar image={user.image} size="small" highlight={true} />
               </Link>
             </li>
