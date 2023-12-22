@@ -10,6 +10,8 @@ import SearchIcon from './ui/icons/SearchIcon';
 import { usePathname } from 'next/navigation';
 import ColorButton from './ui/ColorButton';
 
+// import mainLogo from './assets/image/bslogo.png';
+
 import { useSession, signIn, signOut } from 'next-auth/react';
 import Avatar from './Avatar';
 
@@ -40,9 +42,16 @@ export default function Navbar() {
 
   const pathName = usePathname();
   return (
-    <div className="flex justify-between items-center px-6">
-      <Link href="/" aria-label="Home">
-        <h1 className="text-3xl font-bold">Junsgram</h1>
+    <div className="flex justify-between items-center px-2 xsm:px-6">
+      <Link href="/" aria-label="Home" className="w-6	xsm:w-auto">
+        <h1
+          className={`
+            bg-[url('/assets/image/bslogo.png')] text-transparent bg-contain bg-no-repeat 
+            xsm:text-black  xsm:bg-none xsm:text-3xl xsm:font-bold
+          `}
+        >
+          Junsgram
+        </h1>
       </Link>
       <nav>
         <ul className="flex gap-4 items-center p-4">
