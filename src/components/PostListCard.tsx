@@ -50,6 +50,7 @@ export default function PostListCard({ post, priority = false }: Props) {
       {openModal && (
         <ModalPortal>
           <PostModal onClose={() => setOpenModal(false)}>
+            {/* 메인 페이지에서 포스트 디테일 클릭시 보일 */}
             <PostDetail post={post} />
           </PostModal>
         </ModalPortal>

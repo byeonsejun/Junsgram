@@ -1,6 +1,5 @@
 import { SimplePost } from '@/model/post';
 import { client, urlFor } from './sanity';
-
 const simplePostProjection = `
   ...,
   "username": author->username,
@@ -35,7 +34,12 @@ export async function getPost(id: string) {
       "userImage": author->image,
       "image": photo,
       "likes": likes[]->username,
-      comments[]{comment, "username": author->username, "image": author->image},
+      comments[]{
+        "key":_key, 
+        comment, 
+        "username": author->username, 
+        "image": author->image
+      },
       "id":_id,
       "createdAt":_createdAt
     }
@@ -112,6 +116,7 @@ export async function addComment(postId: string, userId: string, comment: string
     .setIfMissing({ comments: [] })
     .append('comments', [
       {
+        userId,
         comment,
         author: {
           _ref: userId,
@@ -120,6 +125,13 @@ export async function addComment(postId: string, userId: string, comment: string
       },
     ])
     .commit({ autoGenerateArrayKeys: true });
+}
+
+export async function deleteComment(postId: string, key: string) {
+  return client
+    .patch(postId) //
+    .unset([`comments[_key=="${key}"]`])
+    .commit();
 }
 
 export async function createPost(userId: string, text: string, file: Blob) {

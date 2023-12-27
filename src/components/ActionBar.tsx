@@ -4,7 +4,7 @@ import { parseDate } from '@/util/date';
 import ToggleButton from './ui/ToggleButton';
 import HeartFillIcon from './ui/icons/HeartFillIcon';
 import BookmarkFillIcon from './ui/icons/BookmarkFillIcon';
-import { Comment, SimplePost } from '@/model/post';
+import { Comment, GetComment, SimplePost } from '@/model/post';
 import usePosts from '@/hooks/posts';
 import useMe from '@/hooks/me';
 import { ReactNode } from 'react';

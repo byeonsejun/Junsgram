@@ -36,6 +36,7 @@ export default function PostGridCard({ post, priority }: Props) {
       {openModal && (
         <ModalPortal>
           <PostModal onClose={() => setOpenModal(false)}>
+            {/* 유저 페이지에서 포스트 디테일 클릭시 보일 */}
             <PostDetail post={post} />
           </PostModal>
         </ModalPortal>
