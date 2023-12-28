@@ -99,7 +99,7 @@ export default function NewPost({ user: { username, image } }: Props) {
 
   const handleCancel = (e: MouseEvent) => {
     e.preventDefault();
-    if (confirm('포스팅을 취소 하시겠습니까?')) {
+    if (confirm('업로드를 취소 하시겠습니까?')) {
       setFiles(undefined);
       setFileUrls([]);
       if (textRef.current) {
@@ -109,7 +109,7 @@ export default function NewPost({ user: { username, image } }: Props) {
   };
 
   return (
-    <section className="w-full max-w-xl flex flex-col items-center mt-6">
+    <section className="w-full max-w-xl flex flex-col items-center mt-6 px-4">
       {loading && (
         <div className="absolute inset-0 z-20 text-center pt-[30%] bg-sky-500/20">
           <GridSpinner />
@@ -117,7 +117,7 @@ export default function NewPost({ user: { username, image } }: Props) {
       )}
       {error && <p className="w-full bg-red-100 text-red-600 text-center p-4 mb-4 font-bold">{error}</p>}
       <PostUserAvatar username={username} image={image ?? ''} />
-      <form className="w-full flex flex-col mt-2" onSubmit={handleSubmit}>
+      <form className="w-full flex flex-col mt-2 mb-4" onSubmit={handleSubmit}>
         <input
           className="hidden"
           type="file"
@@ -128,7 +128,7 @@ export default function NewPost({ user: { username, image } }: Props) {
           onChange={handleChange}
         />
         <label
-          className={`w-full h-60 flex flex-col items-center justify-center 
+          className={`w-full h-60 flex flex-col items-center justify-center mb-4 
           ${(files === undefined || files?.length !== 0) && 'border-2 border-sky-500 border-dashed'}
           ${files !== undefined && 'hidden'}
           `}
@@ -142,20 +142,20 @@ export default function NewPost({ user: { username, image } }: Props) {
           {!files && (
             <div className="flex flex-col items-center pointer-events-none">
               <FilesIcon />
-              <p>Drag and Drop tour image here or click</p>
+              <p className="text-center">Drag and Drop tour image here or click</p>
             </div>
           )}
         </label>
         {fileUrls && fileUrls.length > 0 && (
-          <div className={`w-full h-60 flex flex-col items-center justify-center relative`}>
+          <div className={`w-full h-60 flex flex-col items-center justify-center relative mb-4`}>
             <button
               className="
-                absolute z-10 top-0 right-0 w-[75px] h-[50px] 
+                absolute z-[5] top-0 right-0 w-[75px] h-[50px] 
                 text-white font-bold bg-slate-950/50
               "
               onClick={(e) => handleCancel(e)}
             >
-              취소
+              cancel
             </button>
             <ImageSlide>
               {fileUrls.map((fileUrl) => (
@@ -167,7 +167,7 @@ export default function NewPost({ user: { username, image } }: Props) {
           </div>
         )}
         <textarea
-          className="w-full h-60 p-2 outline-none text-lg border border-neutral-300 "
+          className="w-full h-60 p-2 outline-none text-lg border border-neutral-300 mb-4"
           name="text"
           id="input-text"
           required
@@ -175,7 +175,7 @@ export default function NewPost({ user: { username, image } }: Props) {
           placeholder={'Write a caption...'}
           ref={textRef}
         />
-        <Button text="Publish" onClick={() => {}} />
+        <Button text="Upload" onClick={() => {}} />
       </form>
     </section>
   );
