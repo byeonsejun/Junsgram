@@ -4,16 +4,22 @@ export default {
   type: 'document',
   fields: [
     {
-      // 누가 작성했는지에 대한 정보
       title: 'Author',
       name: 'author',
       type: 'reference',
-      to: [{type: 'user'}], // 레퍼런스중 유저를 가져옴 (유저에 관한 스키마타입이 그대로 들어있음)
+      to: [{type: 'user'}],
     },
     {
-      title: 'Photo',
-      name: 'photo',
-      type: 'image',
+      title: 'Photos',
+      name: 'photos',
+      type: 'array',
+      of: [
+        {
+          type: 'image',
+          name: 'image',
+        },
+      ],
+      validation: (Rule) => Rule.min(1).error('최소한 하나의 이미지가 있어야 함'),
     },
     {
       title: 'Likes',
@@ -21,11 +27,11 @@ export default {
       type: 'array',
       of: [
         {
-          type: 'reference', // 다른 사용자의 레퍼런스를 참고할때
-          to: [{type: 'user'}], // user타입에 대한 스키마를 참고함
+          type: 'reference',
+          to: [{type: 'user'}],
         },
       ],
-      validation: (Rule) => Rule.unique(), // 고유해야하는 값에 추가하는옵션
+      validation: (Rule) => Rule.unique(),
     },
     {
       title: 'Comments',
@@ -51,6 +57,7 @@ export default {
           ],
         },
       ],
+      validation: (Rule) => Rule.required(),
     },
   ],
   preview: {
@@ -58,7 +65,7 @@ export default {
       title: 'comments.0.comment',
       authorName: 'author.name',
       authorUserName: 'author.username',
-      media: 'photo',
+      media: 'photos.0.asset',
     },
     prepare(selection) {
       const {title, authorName, authorUserName, media} = selection

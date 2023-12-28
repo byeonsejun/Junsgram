@@ -9,6 +9,7 @@ import PostDetail from './PostDetail';
 import PostUserAvatar from './PostUserAvatar';
 import ModalPortal from './ui/ModalPortal';
 import usePosts from '@/hooks/posts';
+import ImageSlide from './ui/ImageSlide';
 
 type Props = {
   post: SimplePost;
@@ -26,15 +27,21 @@ export default function PostListCard({ post, priority = false }: Props) {
   return (
     <article className="rounded-lg shadow-md border border-gray-200">
       <PostUserAvatar image={userImage} username={username} />
-      <Image
-        className="w-full object-cover aspect-square"
-        src={image}
-        alt={`photo by ${username}`}
-        width={500}
-        height={500}
-        priority={priority}
-        onClick={() => setOpenModal(true)}
-      />
+      <ImageSlide>
+        {image &&
+          image.map((img, idx) => (
+            <Image
+              key={idx}
+              className="w-full object-cover aspect-square"
+              src={img}
+              alt={`photo by ${username}`}
+              width={500}
+              height={500}
+              priority={priority}
+              onClick={() => setOpenModal(true)}
+            />
+          ))}
+      </ImageSlide>
       <ActionBar post={post} onComment={handlePostComment}>
         <p className="mb-1">
           <span className="font-bod mr-1">{username}</span>

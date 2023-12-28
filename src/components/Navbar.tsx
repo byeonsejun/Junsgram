@@ -10,8 +10,6 @@ import SearchIcon from './ui/icons/SearchIcon';
 import { usePathname } from 'next/navigation';
 import ColorButton from './ui/ColorButton';
 
-// import mainLogo from './assets/image/bslogo.png';
-
 import { useSession, signIn, signOut } from 'next-auth/react';
 import Avatar from './Avatar';
 

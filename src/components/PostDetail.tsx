@@ -8,16 +8,18 @@ import Avatar from './Avatar';
 import useFullPost from '@/hooks/post';
 import CloseIcon from './ui/icons/CloseIcon';
 import useMe from '@/hooks/me';
+import ImageSlide from './ui/ImageSlide';
+import { PropagateLoader } from 'react-spinners';
 
 type Props = {
   post: SimplePost;
 };
 
 const admin = process.env.NEXT_PUBLIC_ADMIN_ID || undefined;
-
+//  포스트 상세 모달
 export default function PostDetail({ post }: Props) {
-  const { id, userImage, username, image } = post;
-  const { post: data, postComment, deleteComment } = useFullPost(id);
+  const { id, userImage, username } = post;
+  const { post: data, isLoading, postComment, deleteComment } = useFullPost(id);
   const { user } = useMe();
 
   const comments = data?.comments;
@@ -33,23 +35,31 @@ export default function PostDetail({ post }: Props) {
   // console.log(post); // 포스트 심플버전
   // console.log(data); // 디테일포스트 상세버전
 
-  // console.log(admin);
-  // console.log(user?.username === post?.username || user?.username === admin);
-
   return (
     <section className="flex w-full h-full flex-col md:flex-row ">
-      <div className="relative h-[40%] p-4 md:h-auto md:basis-3/5">
-        <Image
-          className="object-contain md:object-cover p-2"
-          src={image}
-          alt={`photo by ${username}`}
-          priority
-          fill
-          sizes="650px"
-        />
+      <div className="relative h-[40%] p-4 md:h-auto md:w-[60%]">
+        {isLoading ? (
+          <PropagateLoader size={8} color="red" className="absolute top-[50%] left-[50%]" />
+        ) : (
+          <ImageSlide>
+            {data &&
+              data.image.map((img, index) => (
+                <div className="w-full h-full aspect-square relative" key={index}>
+                  <Image
+                    className="object-contain p-2"
+                    src={img}
+                    alt={`photo by ${data.username[index]}`}
+                    priority
+                    fill
+                    sizes="650px"
+                  />
+                </div>
+              ))}
+          </ImageSlide>
+        )}
       </div>
 
-      <div className="w-full flex h-[60%] md:h-auto flex-col md:basis-2/5">
+      <div className="w-full flex h-[60%] flex-col md:h-auto md:w-[60%]">
         <PostUserAvatar image={userImage} username={username} />
         <ul className="border-t border-gray-200 h-full overflow-auto mb-1 p-[4px] md:p-2 md:pr-6">
           {comments &&

@@ -17,11 +17,14 @@ type Props = {
 };
 
 export default function ActionBar({ post, children, onComment }: Props) {
-  const { id, likes, createdAt, comments } = post;
+  // console.log(post);
+  // return;
+  const { id, likes, createdAt } = post;
   const { user, setBookmark } = useMe();
   const { setLike } = usePosts();
 
   const liked = user ? likes.includes(user.username) : false;
+
   const bookmarked = user?.bookmarks.includes(id) ?? false;
 
   const handleLike = (like: boolean) => {
@@ -55,7 +58,7 @@ export default function ActionBar({ post, children, onComment }: Props) {
         />
       </div>
       <div className={`${children ? '' : 'flex items-center gap-2 md:block'} px-4 py-1`}>
-        <p className={`text-sm font-bold md:mb-2`}>{`${likes?.length ?? 0} ${likes?.length > 1 ? 'likes' : 'like'}`}</p>
+        <p className={`text-sm font- md:mb-2`}>{`${likes?.length ?? 0} ${likes?.length > 1 ? 'likes' : 'like'}`}</p>
         {children}
         <p className="text-xs text-neutral-500 uppercase md:my-2">{parseDate(createdAt)}</p>
       </div>

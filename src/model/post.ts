@@ -16,18 +16,26 @@ export type FullPost = {
   id: string;
   username: string;
   userImage: string;
-  image: string;
+  image: string[];
+  photos: SanityImage[];
   text: string;
   createdAt: string;
   likes: string[];
   comments: Comment[];
 };
 
+export type SanityImage = {
+  asset: {
+    _ref: string;
+  };
+  _key: string;
+};
+
 export type GetFullPost = {
   id: string;
   username: string;
   userImage: string;
-  image: string;
+  image: string[];
   text: string;
   createdAt: string;
   likes: string[];

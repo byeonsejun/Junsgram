@@ -4,13 +4,14 @@ const simplePostProjection = `
   ...,
   "username": author->username,
   "userImage": author->image,
-  "image": photo,
+  "image": "",
   "likes": likes[]->username,
   "text": comments[0].comment,
   "comments": count(comments),
   "id":_id,
   "createdAt":_createdAt
 `; // post.author.username -> post.username
+// [ { asset: {_ref: 'image-400e9a09266fbca8b94ee9ca82900f41a88b2d45-18x34-png'}, _key: 'photo_0_1703674479864' }, { asset: {_ref: 'image-400e9a09266fbca8b94ee9ca82900f41a88b2d45-18x34-png'}, _key: 'photo_0_1703674479864' } ]
 
 export async function getFollowingPostsOf(username: string) {
   return client
@@ -32,7 +33,7 @@ export async function getPost(id: string) {
       ...,
       "username": author->username,
       "userImage": author->image,
-      "image": photo,
+      "image": "",
       "likes": likes[]->username,
       comments[]{
         "key":_key, 
@@ -45,9 +46,9 @@ export async function getPost(id: string) {
     }
   `
     )
-    .then((post) => ({ ...post, image: urlFor(post.image) }));
+    .then((post) => ({ ...post, image: mapPost(post) }));
 }
-
+// ({ ...post, image: urlFor(post.image) })
 export async function getPostsOf(username: string) {
   return client
     .fetch(
@@ -82,11 +83,18 @@ export async function getSavedPostsOf(username: string) {
     .then(mapPosts);
 }
 
+function mapPost(post: SimplePost) {
+  const filterImg = post.photos.map((photo) => urlFor(photo.asset._ref));
+  return filterImg;
+}
+
 function mapPosts(posts: SimplePost[]) {
-  return posts.map((post: SimplePost) => ({
+  const filterImgArr = posts.map((post) => post.photos.map((item) => urlFor(item.asset._ref)));
+
+  return posts.map((post: SimplePost, index) => ({
     ...post,
     likes: post.likes ?? [],
-    image: urlFor(post.image),
+    image: filterImgArr[index],
   }));
 }
 
@@ -134,24 +142,39 @@ export async function deleteComment(postId: string, key: string) {
     .commit();
 }
 
-export async function createPost(userId: string, text: string, file: Blob) {
-  return client.assets //
-    .upload('image', file)
-    .then((result) => {
-      return client.create(
+export async function createPost(userId: string, text: string, blobArray: Blob[]) {
+  // console.log(blobArray);
+  // console.log('새니티 통신');
+
+  // Blob들을 저장할 배열
+  const uploadPromises: Promise<string>[] = [];
+
+  // Blob 배열의 각 Blob을 순회하면서 업로드 작업을 Promise 배열에 추가합니다.
+  for (const blob of blobArray) {
+    const uploadPromise = client.assets.upload('image', blob).then((result) => result._id);
+    uploadPromises.push(uploadPromise);
+  }
+
+  // 업로드된 이미지 레퍼런스를 사용하여 Post를 생성합니다.
+  // 모든 Blob 업로드 작업이 완료된 후에 실행됩니다.
+  return Promise.all(uploadPromises).then((uploadedImageRefs) => {
+    const photos = uploadedImageRefs.map((refId, index) => ({
+      _key: `photo_${index}_${Date.now()}`, // 유니크한 키 추가
+      asset: { _ref: refId },
+    }));
+
+    return client.create({
+      _type: 'post',
+      author: { _ref: userId },
+      photos: photos,
+      comments: [
         {
-          _type: 'post',
-          author: { _ref: userId },
-          photo: { asset: { _ref: result._id } },
-          comments: [
-            {
-              comment: text,
-              author: { _ref: userId, _type: 'reference' },
-            },
-          ],
-          likes: [],
+          _key: `comment_${Date.now()}`, // 유니크한 키 추가
+          comment: text,
+          author: { _ref: userId, _type: 'reference' },
         },
-        { autoGenerateArrayKeys: true }
-      );
+      ],
+      likes: [],
     });
+  });
 }
