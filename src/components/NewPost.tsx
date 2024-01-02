@@ -19,7 +19,7 @@ export default function NewPost({ user: { username, image } }: Props) {
   const [fileUrls, setFileUrls] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
-  // const textRef = useRef<HTMLTextAreaElement>(null);
+
   const textRef = useRef<HTMLTextAreaElement | null>(null);
   const router = useRouter();
 
@@ -51,8 +51,6 @@ export default function NewPost({ user: { username, image } }: Props) {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragging(false);
-    // const files = e.dataTransfer?.files;
-    // if (files && files[0]) {setFile(files[0])}
 
     const selectFiles: FileList | null = e.dataTransfer?.files;
     // console.log('파일드랍시');
@@ -81,7 +79,7 @@ export default function NewPost({ user: { username, image } }: Props) {
     }
     formData.append('fileName', nameArr.toString());
 
-    console.log('섭밋');
+    // console.log('섭밋');
 
     setLoading(true);
 

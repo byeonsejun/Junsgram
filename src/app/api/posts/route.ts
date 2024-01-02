@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createPost, getFollowingPostsOf } from '@/service/posts';
+import { createPost, deletePost, getBookmarkOf, getFollowingPostsOf } from '@/service/posts';
 import { withSessionUser } from '@/util/session';
+import { removeBookmark } from '@/service/user';
+
+type SampleItem = {
+  filterInfo: Array<{ postIdValue: string; userIdValue: string }>;
+};
 
 export async function GET() {
   return withSessionUser(async (user) =>
@@ -9,6 +14,7 @@ export async function GET() {
   );
 }
 
+// 게시물 등록시 요청 api
 export async function POST(req: NextRequest) {
   return withSessionUser(async (user) => {
     const form = await req.formData();
@@ -21,18 +27,37 @@ export async function POST(req: NextRequest) {
       blobArray.push(blob);
     }
 
-    // console.log('api 서버 통신ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ');
-
-    // if (text === 'sejun') {
-    //   throw new Error('sejun 이라 테스트통신');
-    //   // return new Response('Text Request', { status: 402 });
-    // }
-
     if (!text || blobArray.length === 0) {
       return new Response('Bad Request', { status: 400 });
     }
 
     return createPost(user.id, text, blobArray) //
       .then((data) => NextResponse.json(data));
+  });
+}
+
+// 게시물 삭제시 요청 api
+export async function DELETE(req: NextRequest) {
+  return withSessionUser(async () => {
+    const { postId } = await req.json();
+
+    const bookmarksArr = await getBookmarkOf(postId).then((bookmarksArr: SampleItem[]) => {
+      return bookmarksArr.map((bookmark) => {
+        return bookmark.filterInfo[0];
+      });
+    });
+
+    const removeBookmarksArr = bookmarksArr.map((item) => {
+      return removeBookmark(item.userIdValue, item.postIdValue);
+    });
+
+    await Promise.all(removeBookmarksArr);
+
+    try {
+      const data = await deletePost(postId);
+      return NextResponse.json(data);
+    } catch (error) {
+      return new Response(JSON.stringify(error), { status: 500 });
+    }
   });
 }

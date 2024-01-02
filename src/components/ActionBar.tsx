@@ -17,8 +17,6 @@ type Props = {
 };
 
 export default function ActionBar({ post, children, onComment }: Props) {
-  // console.log(post);
-  // return;
   const { id, likes, createdAt } = post;
   const { user, setBookmark } = useMe();
   const { setLike } = usePosts();

@@ -87,7 +87,6 @@ function mapPost(post: SimplePost) {
   const filterImg = post.photos.map((photo) => urlFor(photo.asset._ref));
   return filterImg;
 }
-
 function mapPosts(posts: SimplePost[]) {
   const filterImgArr = posts.map((post) => post.photos.map((item) => urlFor(item.asset._ref)));
 
@@ -143,8 +142,7 @@ export async function deleteComment(postId: string, key: string) {
 }
 
 export async function createPost(userId: string, text: string, blobArray: Blob[]) {
-  // console.log(blobArray);
-  // console.log('새니티 통신');
+  // console.log('포스트 생성시 새니티 통신');
 
   // Blob들을 저장할 배열
   const uploadPromises: Promise<string>[] = [];
@@ -177,4 +175,20 @@ export async function createPost(userId: string, text: string, blobArray: Blob[]
       likes: [],
     });
   });
+}
+
+export async function getBookmarkOf(postId: string) {
+  return client.fetch(
+    `*[_type == "user" && "${postId}" in bookmarks[]._ref] {
+      "filterInfo": bookmarks[_ref == "${postId}"] {
+        "postIdValue": _ref,
+        "userIdValue": ^._id
+      }
+    }
+    `
+  );
+}
+
+export async function deletePost(postId: string) {
+  return client.delete(postId);
 }

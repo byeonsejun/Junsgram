@@ -16,7 +16,7 @@ async function removeComment(id: string, key: string) {
   }).then((res) => res.json());
 }
 
-export default function useFullPost(postId: string) {
+export default function useDetailPost(postId: string) {
   const { data: post, isLoading, error, mutate } = useSWR<GetFullPost>(`/api/posts/${postId}`);
 
   const { mutate: globalMutate } = useSWRConfig();
