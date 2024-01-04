@@ -15,8 +15,8 @@ export default function SideBar({ user: { name, username, image } }: Props) {
           <p className="text-lg text-neutral-500 leading-4">{name}</p>
         </div>
       </div>
-      <p className="text-sm text-neutral-500 mt-8">About ● Help ● Press ● Api ● Jobs ● Privacy ● Location ● Language</p>
-      <p className="font-bold text-sm mt-8 text-neutral-500">@Copyright BSJgram from SEJUN</p>
+      <p className="text-sm text-neutral-500 mt-8">About · Help · Press · Api · Jobs · Privacy · Location · Language</p>
+      <p className="font-bold text-sm mt-8 text-neutral-500">@Copyright Junsgram from ByunSeJun</p>
     </>
   );
 }
