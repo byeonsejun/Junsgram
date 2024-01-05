@@ -19,12 +19,10 @@ export default function SideBar({ user: { name, username, image } }: Props) {
       </div>
       <ul className="flex flex-wrap  mt-8 text-sm text-neutral-500">
         {sideBarMenus.map((munu, idx) => (
-          <>
-            <li className="mx-1 cursor-pointer" key={munu}>
-              {munu}
-            </li>
-            {sideBarMenus.length !== idx + 1 && '·'}
-          </>
+          <li key={munu}>
+            <span className="cursor-pointer">{munu}</span>
+            <span className="mx-1">{sideBarMenus.length !== idx + 1 && '·'}</span>
+          </li>
         ))}
       </ul>
       <p className="font-bold text-sm mt-4 text-neutral-500 md:mt-8">@Copyright Junsgram from ByunSeJun</p>
