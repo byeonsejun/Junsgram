@@ -11,7 +11,6 @@ function randomText() {
 
 export default function TextDropEffect() {
   useEffect(() => {
-    console.log('1');
     function rain() {
       let cloud = document.querySelector('.effect_cloud');
       let e = document.createElement('div');
@@ -33,7 +32,6 @@ export default function TextDropEffect() {
         if (!cloud) return;
         cloud.removeChild(e);
       }, 2000);
-      console.log('1');
     }
 
     const dropInterval = setInterval(function () {
