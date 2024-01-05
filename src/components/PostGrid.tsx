@@ -1,6 +1,7 @@
 import GridSpinner from './ui/GridSpinner';
 import PostGridCard from './PostGridCard';
 import usePosts from '@/hooks/posts';
+import { RiH3 } from 'react-icons/ri';
 
 // user 상세 페이지에서 쓰이는 컴포넌트
 export default function PostGrid() {
@@ -16,6 +17,7 @@ export default function PostGrid() {
             </li>
           ))}
       </ul>
+      {posts?.length === 0 && <h3 className="text-white text-center pb-8 md:mt-24">해당 게시물이 없습니다.</h3>}
     </div>
   );
 }

@@ -12,21 +12,21 @@ export default function CommentForm({ onPostComment }: Props) {
     setComment('');
   };
   return (
-    <form onSubmit={handleSubmit} className="flex items-center px-3 border-t border-neutral-300">
-      <SmileIcon />
+    <form onSubmit={handleSubmit} className="flex items-center mb-1">
+      {/* <SmileIcon /> */}
       <input
-        className="w-full ml-2 border-none outline-none p-3"
+        className="grow ml-2 border-none bg-black outline-none p-2 text-white"
         type="text"
-        placeholder="Add a comment..."
+        placeholder="댓글 달기..."
         required
         value={comment}
         onChange={(e) => setComment(e.target.value)}
       />
       <button //
         disabled={buttonDisabled}
-        className={`font-bold ml-2 ${buttonDisabled ? 'text-sky-300' : 'text-sky-500'}`}
+        className={`w-[35px] font-bold mx-2 ${buttonDisabled ? 'text-sky-300/50' : 'text-sky-500'}`}
       >
-        Post
+        게시
       </button>
     </form>
   );

@@ -22,6 +22,10 @@ const config: Config = {
         xl: '1280px',
         '2xl': '1536px',
       },
+      colors: {
+        'menu-bg': '#262626',
+        'blue-color': '#0095f6',
+      },
     },
   },
   plugins: [],

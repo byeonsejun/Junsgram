@@ -4,7 +4,7 @@ import { parseDate } from '@/util/date';
 import ToggleButton from './ui/ToggleButton';
 import HeartFillIcon from './ui/icons/HeartFillIcon';
 import BookmarkFillIcon from './ui/icons/BookmarkFillIcon';
-import { Comment, GetComment, SimplePost } from '@/model/post';
+import { Comment, SimplePost } from '@/model/post';
 import usePosts from '@/hooks/posts';
 import useMe from '@/hooks/me';
 import { ReactNode } from 'react';
@@ -56,9 +56,11 @@ export default function ActionBar({ post, children, onComment }: Props) {
         />
       </div>
       <div className={`${children ? '' : 'flex items-center gap-2 md:block'} px-4 py-1`}>
-        <p className={`text-sm font- md:mb-2`}>{`${likes?.length ?? 0} ${likes?.length > 1 ? 'likes' : 'like'}`}</p>
+        <p className={`text-white text-sm font-bold md:mb-2`}>{`${likes?.length ?? 0} ${
+          likes?.length > 1 ? 'likes' : 'like'
+        }`}</p>
         {children}
-        <p className="text-xs text-neutral-500 uppercase md:my-2">{parseDate(createdAt)}</p>
+        <p className="text-xs text-white/80 uppercase md:my-2">{parseDate(createdAt)}</p>
       </div>
       <CommentForm onPostComment={handleComment} />
     </>

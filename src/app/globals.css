@@ -8,3 +8,32 @@ body {
   height: 100vh;
   overflow-x: hidden;
 }
+
+/* carousel 공통 slide 커스텀 */
+ul.react-multi-carousel-track {
+  height: 100%;
+}
+
+/* carousel followingBar slide 커스텀 */
+#following_bar .react-multiple-carousel__arrow--left {
+  left: 0%;
+}
+#following_bar .react-multiple-carousel__arrow--right {
+  right: 0%;
+}
+#following_bar .react-multiple-carousel__arrow--left::before,
+#following_bar .react-multiple-carousel__arrow--right::before {
+  color: black;
+}
+
+#following_bar .react-multiple-carousel__arrow {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+#following_bar .react-multiple-carousel__arrow:hover {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+/* home post list custom 마지막 게시물  */
+li.home_post_list:last-child > article {
+  border-bottom-width: 0px;
+}

@@ -75,6 +75,7 @@ export default function PostDetail({ post }: Props) {
   } else {
     return (
       <section
+        id="sejun"
         className="flex w-full h-full flex-col md:flex-row "
         onClick={(e) => {
           const unTarget = document.getElementById('delete_btt');
@@ -113,38 +114,35 @@ export default function PostDetail({ post }: Props) {
             </button>
           )}
           {showMore && (
-            <div
-              id="delete_btt"
-              className="
-            absolute z-[2] top-[50px] right-[5px] w-[150px] h-auto
-            bg-white border-solid border-2 border-black/75
-            "
-            >
-              <ul className="flex flex-col w-full h-full p-2">
-                <li className="cursor-pointer text-center" onClick={handlePostDelete}>
+            <div id="delete_btt" className="absolute z-[2] top-[42px] right-[5px] w-[150px] h-auto">
+              <ul className="flex flex-col w-full h-full">
+                <li
+                  className="bg-menu-bg text-white/90 border-none cursor-pointer text-center p-2 hover:font-bold"
+                  onClick={handlePostDelete}
+                >
                   게시물 삭제
                 </li>
               </ul>
             </div>
           )}
           <PostUserAvatar image={userImage} username={username} />
-          <ul className="border-t border-gray-200 h-full overflow-auto mb-1 p-[4px] md:p-2 md:pr-6">
+          <ul className="border-t border-b border-white/50 pt-3 mb-2 p-[4px] h-full overflow-auto   md:p-2 md:pr-6">
             {comments &&
               comments.map(({ image, username: commentUsername, comment, key }, index) => (
-                <li key={index} className="flex items-center mb-1 relative pr-[20px] md:pr-0">
+                <li key={`${comment}${index}`} className="flex items-center mb-1 relative pr-[20px] md:pr-0">
                   <Avatar //
                     image={image}
                     size="small"
                     highlight={commentUsername === username}
                   />
                   <div className="ml-2 text-sm md:text-base">
-                    <span className="font-bold mr-1">{commentUsername}</span>
-                    <span>{comment}</span>
+                    <span className="text-white font-bold mr-1">{commentUsername}</span>
+                    <span className="text-white break-all">{comment}</span>
                     {/* 첫번째글은 삭제불가, 관리자, 글작성자, 댓글쓴사람 댓글삭제권한 부여 */}
                     {index !== 0 && (adminAuth || postAuth || user?.username === commentUsername) && (
                       <button
                         onClick={() => handleCommentDelete(key)}
-                        className="absolute right-0 top-[6.5px] md:right-[-20px]"
+                        className="absolute right-0 top-[50%] translate-y-[-50%] md:right-[-20px]"
                       >
                         <CloseIcon />
                       </button>

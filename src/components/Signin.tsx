@@ -14,7 +14,8 @@ export default function Signin({ providers, callbackUrl }: Props) {
       {Object.values(providers).map(({ name, id }) => (
         <ColorButton //
           key={id}
-          text={`Sign In with ${name}`}
+          type="sign"
+          text={`${name} Login`}
           onClick={() => signIn(id, { callbackUrl })}
           size="big"
         />

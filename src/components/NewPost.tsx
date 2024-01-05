@@ -4,11 +4,12 @@ import { AuthUser } from '@/model/user';
 import PostUserAvatar from './PostUserAvatar';
 import FilesIcon from './ui/icons/FilesIcon';
 import Button from './ui/Button';
-import { ChangeEvent, FormEvent, MouseEvent, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, FormEvent, MouseEvent, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import GridSpinner from './ui/GridSpinner';
 import ImageSlide from './ui/ImageSlide';
+import TextDropEffect from './ui/TextDropEffect';
 
 type Props = {
   user: AuthUser;
@@ -79,8 +80,6 @@ export default function NewPost({ user: { username, image } }: Props) {
     }
     formData.append('fileName', nameArr.toString());
 
-    // console.log('섭밋');
-
     setLoading(true);
 
     fetch('/api/posts/', { method: 'POST', body: formData })
@@ -126,8 +125,8 @@ export default function NewPost({ user: { username, image } }: Props) {
           onChange={handleChange}
         />
         <label
-          className={`w-full h-60 flex flex-col items-center justify-center mb-4 
-          ${(files === undefined || files?.length !== 0) && 'border-2 border-sky-500 border-dashed'}
+          className={`w-full h-60 flex flex-col items-center justify-center mb-4 cursor-pointer
+          ${(files === undefined || files?.length !== 0) && 'border-2 border-white border-dashed'}
           ${files !== undefined && 'hidden'}
           `}
           htmlFor="input-upload"
@@ -136,11 +135,11 @@ export default function NewPost({ user: { username, image } }: Props) {
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         >
-          {dragging && <div className="absolute inset-0 z-10 bg-sky-500/20 pointer-events-none" />}
+          {dragging && <TextDropEffect />}
           {!files && (
             <div className="flex flex-col items-center pointer-events-none">
               <FilesIcon />
-              <p className="text-center">Drag and Drop tour image here or click</p>
+              <p className="text-center mt-2 text-white font-bold">여기에 사진을 끌어넣으시거나 클릭하세요.</p>
             </div>
           )}
         </label>
@@ -149,7 +148,7 @@ export default function NewPost({ user: { username, image } }: Props) {
             <button
               className="
                 absolute z-[5] top-0 right-0 w-[75px] h-[50px] 
-                text-white font-bold bg-slate-950/50
+                text-white font-bold bg-menu-bg
               "
               onClick={(e) => handleCancel(e)}
             >
@@ -165,12 +164,12 @@ export default function NewPost({ user: { username, image } }: Props) {
           </div>
         )}
         <textarea
-          className="w-full h-60 p-2 outline-none text-lg border border-neutral-300 mb-4"
+          className="w-full h-60 p-2 outline-none text-lg mb-4 text-white bg-menu-bg placeholder:text-white/60"
           name="text"
           id="input-text"
           required
           rows={10}
-          placeholder={'Write a caption...'}
+          placeholder={'문구를 입력하세요...'}
           ref={textRef}
         />
         <Button text="Upload" onClick={() => {}} />
