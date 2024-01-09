@@ -2,8 +2,9 @@ import { FormEvent, useState } from 'react';
 import SmileIcon from './ui/icons/SmileIcon';
 type Props = {
   onPostComment: (comment: string) => void;
+  id: string | undefined;
 };
-export default function CommentForm({ onPostComment }: Props) {
+export default function CommentForm({ onPostComment, id }: Props) {
   const [comment, setComment] = useState('');
   const buttonDisabled = comment.length === 0;
   const handleSubmit = (e: FormEvent) => {
@@ -19,6 +20,8 @@ export default function CommentForm({ onPostComment }: Props) {
         type="text"
         placeholder="댓글 달기..."
         required
+        name={id}
+        autoComplete={id}
         value={comment}
         onChange={(e) => setComment(e.target.value)}
       />
