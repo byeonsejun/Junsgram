@@ -1,5 +1,4 @@
 import { FormEvent, useState } from 'react';
-import SmileIcon from './ui/icons/SmileIcon';
 type Props = {
   onPostComment: (comment: string) => void;
   id: string | undefined;
@@ -14,7 +13,6 @@ export default function CommentForm({ onPostComment, id }: Props) {
   };
   return (
     <form onSubmit={handleSubmit} className="flex items-center mb-1">
-      {/* <SmileIcon /> */}
       <input
         className="grow ml-2 border-none bg-black outline-none p-2 text-white"
         type="text"
