@@ -20,7 +20,6 @@ export default function ActionBar({ post, children, onComment }: Props) {
   const { id, likes, createdAt } = post;
   const { user, setBookmark } = useMe();
   const { setLike } = usePosts();
-
   const liked = user ? likes.includes(user.username) : false;
 
   const bookmarked = user?.bookmarks.includes(id) ?? false;
@@ -62,7 +61,7 @@ export default function ActionBar({ post, children, onComment }: Props) {
         {children}
         <p className="text-xs text-white/80 uppercase md:my-2">{parseDate(createdAt)}</p>
       </div>
-      <CommentForm onPostComment={handleComment} />
+      <CommentForm onPostComment={handleComment} id={user?.username} />
     </>
   );
 }
