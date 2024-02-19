@@ -1,7 +1,7 @@
 'use client';
 
 import { ClientSafeProvider, signIn } from 'next-auth/react';
-import ColorButton from './ui/ColorButton';
+import LoginButton from './ui/LoginButton';
 
 type Props = {
   providers: Record<string, ClientSafeProvider>;
@@ -12,12 +12,18 @@ export default function Signin({ providers, callbackUrl }: Props) {
   return (
     <>
       {Object.values(providers).map(({ name, id }) => (
-        <ColorButton //
+        <LoginButton
+          type={`${name}`}
+          text={`Sign in with ${name}`}
+          onClick={() =>
+            signIn(
+              id,
+              { callbackUrl }, //
+              { loginHint: 'YOUR_GOOGLE_ID' }
+              // { prompt: 'select_account' } // 로그인 창 새로띄우기
+            )
+          }
           key={id}
-          type="sign"
-          text={`${name} Login`}
-          onClick={() => signIn(id, { callbackUrl })}
-          size="big"
         />
       ))}
     </>
