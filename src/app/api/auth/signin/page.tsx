@@ -33,12 +33,12 @@ export default async function SignInPage({ searchParams: { callbackUrl } }: Prop
     "
     >
       <div className="w-full">
-        <img src={`/assets/image/login.svg`} alt="login img" className="w-full" />
+        <img src={`/assets/image/login.svg`} alt="Junsgram logo" className="w-full" />
       </div>
       <div className="w-full text-white flex flex-col items-left gap-6">
-        <h2 className="text-4xl font-bold">Welcom Junsgram</h2>
+        <h2 className="text-4xl font-bold">Welcome to Junsgram</h2>
         <p className="text-[22px]">
-          변세준의 인스타그램에 오신걸 환영합니다. <br />
+          변세준의 Junsgram에 오신 걸 환영합니다. <br />
           진행 가이드는 로그인을 진행하여 주신 뒤 검색 페이지에 들어가셔서 원하는 사람의 아이디를 팔로우 하시면 상대방의
           게시물이 홈 화면에 노출되는 방식으로 개발하였습니다. 게시물이 있는 qustpwns93의 아이디를 팔로우 해주시면
           확인하실수 있습니다.

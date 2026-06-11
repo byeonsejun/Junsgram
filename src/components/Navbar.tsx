@@ -44,15 +44,11 @@ export default function Navbar() {
   const pathName = usePathname();
   return (
     <div className="flex justify-between items-center px-4 xsm:px-6 xl:px-2 xl:py-10 xl:flex-col xl:gap-8">
-      <Link href="/" aria-label="Home" className="w-6 overflow-hidden	xsm:w-auto">
-        <h1
-          className={`
-            bg-[url('/assets/image/bslogo.png')] bg-white rounded-full text-transparent bg-contain bg-no-repeat 
-            xsm:text-white xsm:rounded-none  xsm:bg-black xsm:text-1xl xsm:font-bold sm:text-3xl
-          `}
-        >
-          Junsgram
-        </h1>
+      <Link href="/" aria-label="Junsgram Home" className="w-6 overflow-hidden xsm:w-auto flex items-center gap-2">
+        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-fuchsia-500 via-rose-500 to-amber-400 text-[11px] font-black tracking-tight text-white">
+          JG
+        </span>
+        <h1 className="hidden xsm:block text-white text-lg font-extrabold tracking-tight sm:text-2xl">Junsgram</h1>
       </Link>
       <nav className="xl:w-full xl:px-2">
         <ul className="flex gap-3 items-center p-1 xsm:p-4 xsm:gap-4 xl:flex-col xl:items-start xl:gap-6 xl:p-0">

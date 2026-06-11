@@ -31,7 +31,7 @@ export default async function UserPage({ params: { username } }: Props) {
 export async function generateMetadata({ params: { username } }: Props): Promise<Metadata> {
   const user = await getUser(username);
   return {
-    title: `${user?.name} (@${user?.username}) · Instantgram Photos`,
-    description: `${user?.name}'s all Instantgram posts`,
+    title: `${user?.name} (@${user?.username}) · Junsgram Photos`,
+    description: `${user?.name}'s all Junsgram posts`,
   };
 }

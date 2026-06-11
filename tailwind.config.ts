@@ -11,7 +11,6 @@ const config: Config = {
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-        mainLogo: 'url(public/assets/image/bslogo.png)',
       },
       screens: {
         xxsm: '320px',

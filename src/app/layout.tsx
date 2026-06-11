@@ -9,10 +9,10 @@ const openSans = Open_Sans({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: {
-    default: 'JunsGram',
-    template: 'JunsGram | %s',
+    default: 'Junsgram',
+    template: '%s | Junsgram',
   },
-  description: 'JunsGram Photos',
+  description: 'Junsgram Photos',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
