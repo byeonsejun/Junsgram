@@ -25,7 +25,7 @@ export default function SideBar({ user: { name, username, image } }: Props) {
           </li>
         ))}
       </ul>
-      <p className="font-bold text-sm mt-4 text-neutral-500 md:mt-8">@Copyright Junsgram from ByunSeJun</p>
+      <p className="font-bold text-sm mt-4 text-neutral-500 md:mt-8">Copyright @ Junsgram by ByunSeJun</p>
     </>
   );
 }
