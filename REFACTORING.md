@@ -42,10 +42,11 @@ Junsgram 프로젝트(인스타그램 스타일 사진 공유 앱)의 전면 리
   `DELETE /api/posts` 핸들러는 서버측에서 소유자/관리자 검증을 **전혀** 하지 않음 — 소유자 확인이
   `PostDetail.tsx`의 클라이언트에서만 이뤄짐.
   *세션 API에 의존하므로, Auth.js v5 마이그레이션과 함께/직후에 구현(Phase 3) — v4에서 먼저 짜면 두 번 작성하게 됨.*
-- [ ] **시크릿 교체 (조건부 / 필수)** — `.env.local`(gitignore됨, 현재 커밋 안 됨)에 실제 Google OAuth
-  secret, Sanity write 토큰, NextAuth secret이 들어있음. **git history를 스캔**해서 한 번이라도 커밋된
-  적이 있으면 교체(rotation)는 **필수**(Sanity 토큰 + OAuth secret + NextAuth secret). 필요한 환경변수는
-  `.env.example`에 문서화.
+- [x] **시크릿 교체 (조건부)** — git history 전체를 스캔(파일명 + 실제 시크릿 값 literal)한 결과,
+  Google OAuth secret / Sanity write 토큰 / NextAuth secret의 **실제 값은 한 번도 커밋된 적 없음**.
+  히트는 전부 `process.env.X` 변수 이름 참조뿐. `.env.local`은 gitignore 확인됨. 따라서 조건부 규칙상
+  **교체(rotation)는 필수 아님**(노출 정황 없음 — 일반 위생 차원의 권장만). 필요한 환경변수는
+  `.env.example`에 문서화 완료. Phase 2에서 완료.
 - [ ] **public 환경변수로 관리자 노출** — `NEXT_PUBLIC_ADMIN_ID`가 클라이언트로 전달됨. 관리자 판별을
   서버측으로 이동(위의 서버 기반 행위자 식별 작업에 포함).
 - [ ] **파일 업로드 검증 (보안 교차참조, §3 참고)** — UX뿐 아니라 악성/대용량 업로드 차단을 위해 서버에서
@@ -126,7 +127,7 @@ Junsgram 프로젝트(인스타그램 스타일 사진 공유 앱)의 전면 리
 - [ ] **테스트 전무** — 서비스/훅 단위 테스트(Vitest)와 핵심 플로우(로그인, 게시물 생성, 좋아요, 댓글,
   팔로우) 컴포넌트/E2E 테스트(Playwright) 추가.
 - [ ] **CI** — PR마다 lint + 타입체크 + 테스트.
-- [ ] **`.env.example`** + README 설치/실행 가이드.
+- [x] **`.env.example`** — Phase 2에서 추가 (필요한 환경변수 문서화). README 설치/실행 가이드는 남음.
 
 ---
 
@@ -139,9 +140,9 @@ Junsgram 프로젝트(인스타그램 스타일 사진 공유 앱)의 전면 리
 - `searchUsers` 연산자 우선순위 버그 수정.
 - 프레임워크 변경 없음 — 가장 먼저 안전하게 착수 가능.
 
-### Phase 2 — 시크릿 감사 & 교체 (P0, 프레임워크 독립)
-- git history에서 커밋된 시크릿 스캔; 발견 시 교체(필수).
-- 필요한 환경변수를 문서화한 `.env.example` 추가.
+### Phase 2 — 시크릿 감사 & 교체 (P0, 프레임워크 독립) ✅ 완료
+- git history 스캔 완료 — 실제 시크릿 값 커밋 흔적 없음 → 교체 불필요.
+- 필요한 환경변수를 문서화한 `.env.example` 추가 완료.
 
 ### Phase 3 — Auth.js v5 마이그레이션 + 서버 기반 행위자 식별 (P0/P1)
 - NextAuth v4 → Auth.js v5 마이그레이션 (이 과정에서 `route.ts`의 `authOptions` 안티패턴 제거됨).
