@@ -14,3 +14,9 @@ export async function withSessionUser(
 
   return callbackFn(user);
 }
+
+// Authoritative server-side admin check (uses the server-only ADMIN_ID env).
+export function isAdmin(username: string): boolean {
+  const adminId = process.env.ADMIN_ID;
+  return !!adminId && username === adminId;
+}

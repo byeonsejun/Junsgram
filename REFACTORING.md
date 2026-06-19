@@ -36,37 +36,33 @@ Junsgram 프로젝트(인스타그램 스타일 사진 공유 앱)의 전면 리
 - [x] **쿼리 로직 / 연산자 우선순위 버그** — `searchUsers`가 기존에
   `*[_type == "user" && (name match ...) || (username match ...)]` 를 만들었는데, 괄호 없는 `&&`/`||`
   혼용으로 타입 필터가 깨졌음. 이제 `&& (name match $match || username match $match)`. Phase 1에서 완료.
-- [ ] **모든 mutation API의 서버 기반 행위자 식별** — like, bookmark, comment, follow, delete는 행위
-  주체를 **서버 세션**에서 도출해야 하며, 클라이언트가 보낸 `userId`를 신뢰하면 **안 됨**. 이는 행위자
-  스푸핑(다른 유저 명의로 동작)을 방지함. 현재 일부 핸들러는 요청 바디/클라이언트를 신뢰함. 또한
-  `DELETE /api/posts` 핸들러는 서버측에서 소유자/관리자 검증을 **전혀** 하지 않음 — 소유자 확인이
-  `PostDetail.tsx`의 클라이언트에서만 이뤄짐.
-  *세션 API에 의존하므로, Auth.js v5 마이그레이션과 함께/직후에 구현(Phase 3) — v4에서 먼저 짜면 두 번 작성하게 됨.*
+- [x] **모든 mutation API의 서버 기반 행위자 식별** — 행위 주체는 모두 `auth()` 세션에서 도출됨
+  (like/bookmark/comment 생성/follow/post 생성은 기존부터). **DELETE 게시물**에 작성자/관리자 검증
+  (403/404), **댓글 삭제**에 첫 댓글 보호 + 관리자/게시물 작성자/댓글 작성자 검증을 서버에 추가함.
+  Phase 4에서 완료.
 - [x] **시크릿 교체 (조건부)** — git history 전체를 스캔(파일명 + 실제 시크릿 값 literal)한 결과,
   Google OAuth secret / Sanity write 토큰 / NextAuth secret의 **실제 값은 한 번도 커밋된 적 없음**.
   히트는 전부 `process.env.X` 변수 이름 참조뿐. `.env.local`은 gitignore 확인됨. 따라서 조건부 규칙상
   **교체(rotation)는 필수 아님**(노출 정황 없음 — 일반 위생 차원의 권장만). 필요한 환경변수는
   `.env.example`에 문서화 완료. Phase 2에서 완료.
-- [ ] **public 환경변수로 관리자 노출** — `NEXT_PUBLIC_ADMIN_ID`가 클라이언트로 전달됨. 관리자 판별을
-  서버측으로 이동(위의 서버 기반 행위자 식별 작업에 포함).
+- [x] **public 환경변수로 관리자 노출** — 서버 전용 `ADMIN_ID` env + `isAdmin()` 헬퍼로 권한 판별을
+  서버측으로 이동. `NEXT_PUBLIC_ADMIN_ID`는 UI 표시(삭제 버튼 노출) 용도로만 남김. Phase 4에서 완료.
 - [ ] **파일 업로드 검증 (보안 교차참조, §3 참고)** — UX뿐 아니라 악성/대용량 업로드 차단을 위해 서버에서
   타입/크기/개수를 검증.
 
 ## 2. 의존성 & 프레임워크 업그레이드 (P1)
 
-- [ ] **Next.js 13.5.6 → 16.2.x** — 곧장 16으로. Next 15 LTS는 2026년 10월 지원 종료이므로 건너뜀. 새
-  캐싱 모델 검토(§6과 함께 처리).
-- [ ] **async Request API (Next 15+ breaking change)** — `cookies()`, `headers()`, route handler의
-  `params`가 이제 async. `src/util/session.ts`와 인증 관련 코드 전반에 영향 → 모든 사용처를 점검.
-  *마이그레이션 최대 함정이므로 별도로 추적.*
-- [ ] **React 18 → 19** — React 19는 Next 16의 **필수** 의존성(선택 아님).
-- [ ] **NextAuth v4 → Auth.js v5** — 새 설정 방식. v5 마이그레이션은 `route.ts`에서 `authOptions`를
-  export하던 안티패턴도 완전히 제거함(v5엔 `authOptions` export 자체가 없음). 따라서 별도 추출 작업
-  불필요(§4 참고).
-- [ ] **tsconfig `target: es5` → `es2022`** — Node 20+ / 모던 브라우저 앱에 es5는 구식.
-- [ ] **`next.config.js`의 `images.domains` deprecated** → `images.remotePatterns`로 마이그레이션.
-- [ ] **Turbopack**은 Next 16의 **기본 번들러**(따로 "도입"할 대상 아님) — 빌드가 정상 동작하는지 검증.
-- [ ] 나머지 의존성(`react-multi-carousel`, `react-spinners`, `timeago.js`) 최신 버전 점검.
+- [x] **Next.js 13.5.6 → 16.2.9** — 16 직행. Phase 3에서 완료.
+- [x] **async Request API (Next 15+ breaking change)** — 모든 동적 라우트/페이지 `params`,
+  로그인 페이지 `searchParams`를 await로 전환. Phase 3에서 완료.
+- [x] **React 18 → 19** — React 19.2로 업그레이드. Phase 3에서 완료.
+- [x] **NextAuth v4 → Auth.js v5** — split config로 마이그레이션, `authOptions` 안티패턴 제거됨.
+  Phase 4에서 완료.
+- [x] **tsconfig `target: es5` → `es2022`** — Phase 3에서 완료.
+- [x] **`next.config.js`의 `images.domains` → `images.remotePatterns`** — Phase 3에서 완료.
+- [x] **Turbopack** Next 16 기본 번들러로 빌드 green 확인. Phase 3에서 완료.
+- [ ] 나머지 의존성 점검 — `react-spinners`(react-dom ^18 peer 경고, React 19에서 동작은 함),
+  `react-multi-carousel`, `timeago.js` 최신 버전 점검 **남음**.
 
 ## 3. 버그 & 정확성 (별도 표기 없으면 P1)
 
@@ -150,18 +146,21 @@ Junsgram 프로젝트(인스타그램 스타일 사진 공유 앱)의 전면 리
 > Phase 4(Next16)를 맞바꾸는 동시에 **한 브랜치에서 함께 진행**(`refactor/phase-3-4-next16-authjs-v5`).
 > 작업 순서는 "Next 16 업그레이드 → Auth.js v5"로 진행.
 
-### Phase 3 — Next.js 16 / React 19 업그레이드 + 캐싱 모델 (구 Phase 4)
-- Next 16.2.x + React 19로 업그레이드; Turbopack 기본 빌드 검증.
-- `images.domains` → `images.remotePatterns` 마이그레이션; tsconfig `target`을 es2022로 상향.
-- async Request API(`cookies()`/`headers()`/`params`) 대응.
-- 새 캐싱 모델에 맞춰 Sanity 캐싱 전략(CDN + 태그 기반 재검증) 재작업(§6).
+### Phase 3 — Next.js 16 / React 19 업그레이드 + 캐싱 모델 (구 Phase 4) ✅ 대부분 완료
+- [x] Next 16.2.9 + React 19로 업그레이드; Turbopack 기본 빌드 green. eslint ^9 + eslint-config-next 16.
+- [x] `images.domains` → `images.remotePatterns`; tsconfig `target` es5→es2022.
+- [x] async Request API 대응: 모든 동적 라우트/페이지의 `params`, 로그인 페이지의 `searchParams` await.
+- [x] `middleware.ts` → `proxy.ts` (Next 16 컨벤션, deprecation 경고 해소).
+- [ ] 새 캐싱 모델에 맞춰 Sanity 캐싱 전략(CDN + 태그 기반 재검증) 재작업 — §6과 함께 **남김**.
 
-### Phase 4 — Auth.js v5 마이그레이션 + 서버 기반 행위자 식별 (구 Phase 3, P0/P1)
-- NextAuth v4 → Auth.js v5 마이그레이션 (이 과정에서 `route.ts`의 `authOptions` 안티패턴 제거됨).
-  미들웨어 Edge 호환을 위해 Sanity 의존 `signIn` 콜백을 분리하는 split config 패턴 사용.
-- `util/session.ts`와 모든 인증 코드를 새 `auth()` API에 맞게 수정.
-- 새 세션 API를 기반으로 **모든** mutation API(like, bookmark, comment, follow, delete)에서 서버 기반
-  행위자 식별 + 소유자/관리자 검증 강제. 관리자 판별을 public 환경변수에서 분리.
+### Phase 4 — Auth.js v5 마이그레이션 + 서버 기반 행위자 식별 (구 Phase 3, P0/P1) ✅ 완료
+- [x] NextAuth v4 → Auth.js v5. split config: `auth.config.ts`(edge-safe) + `auth.ts`(Sanity `signIn`).
+  `authOptions`-from-`route.ts` 안티패턴 제거됨. `route.ts`는 `handlers` 재export.
+- [x] `util/session.ts` + 모든 서버 컴포넌트를 `auth()` API로 전환.
+- [x] mutation API 행위자는 모두 세션에서 도출됨(like/bookmark/comment/follow/post 생성은 기존부터 ✓).
+  **DELETE 게시물**: 작성자 또는 관리자만(403/404) — 서버 검증 추가. **댓글 삭제**: 첫 댓글 삭제 불가 +
+  관리자/게시물 작성자/댓글 작성자만 — 서버 검증 추가.
+- [x] 관리자 판별을 서버 전용 `ADMIN_ID` env로 분리(`isAdmin()`). `NEXT_PUBLIC_ADMIN_ID`는 UI 용도만.
 
 ### Phase 5 — API 계약 정리 (한 패스)
 - zod 입력 검증 + 에러 응답 표준화 + `res.ok` 인지 fetcher를 함께.

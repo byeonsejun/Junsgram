@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createPost, deletePost, getBookmarkOf, getFollowingPostsOf } from '@/service/posts';
-import { withSessionUser } from '@/util/session';
+import { createPost, deletePost, getBookmarkOf, getFollowingPostsOf, getPostAuthorId } from '@/service/posts';
+import { isAdmin, withSessionUser } from '@/util/session';
 import { removeBookmark } from '@/service/user';
 
 type SampleItem = {
@@ -38,8 +38,21 @@ export async function POST(req: NextRequest) {
 
 // 게시물 삭제시 요청 api
 export async function DELETE(req: NextRequest) {
-  return withSessionUser(async () => {
+  return withSessionUser(async (user) => {
     const { postId } = await req.json();
+
+    if (!postId) {
+      return new Response('Bad Request', { status: 400 });
+    }
+
+    // Authorization: only the post author or an admin may delete a post.
+    const authorId = await getPostAuthorId(postId);
+    if (!authorId) {
+      return new Response('Not Found', { status: 404 });
+    }
+    if (authorId !== user.id && !isAdmin(user.username)) {
+      return new Response('Forbidden', { status: 403 });
+    }
 
     const bookmarksArr = await getBookmarkOf(postId).then((bookmarksArr: SampleItem[]) => {
       return bookmarksArr.map((bookmark) => {

@@ -198,3 +198,29 @@ export async function getBookmarkOf(postId: string) {
 export async function deletePost(postId: string) {
   return client.delete(postId);
 }
+
+// Authorization helpers (server-side ownership checks) -----------------------
+
+// The author reference (user _id) of a post, or null if the post doesn't exist.
+export async function getPostAuthorId(postId: string): Promise<string | null> {
+  return client.fetch(`*[_type == "post" && _id == $postId][0].author._ref`, { postId });
+}
+
+type CommentContext = {
+  postAuthorId: string | null;
+  firstCommentKey: string | null;
+  commentAuthorId: string | null;
+};
+
+// Context needed to authorize a comment deletion: post author, first-comment
+// key (the seed comment can't be deleted), and the target comment's author.
+export async function getCommentContext(postId: string, key: string): Promise<CommentContext | null> {
+  return client.fetch(
+    `*[_type == "post" && _id == $postId][0]{
+      "postAuthorId": author._ref,
+      "firstCommentKey": comments[0]._key,
+      "commentAuthorId": comments[_key == $key][0].author._ref
+    }`,
+    { postId, key }
+  );
+}
