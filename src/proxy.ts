@@ -1,10 +1,12 @@
-import { getToken } from 'next-auth/jwt';
-import { NextRequest, NextResponse } from 'next/server';
+import NextAuth from 'next-auth';
+import { NextResponse } from 'next/server';
+import { authConfig } from './auth.config';
 
-export async function middleware(req: NextRequest) {
-  const token = await getToken({ req });
+// Edge-safe Auth.js instance for the proxy (uses the Sanity-free base config).
+const { auth } = NextAuth(authConfig);
 
-  if (!token) {
+export default auth((req) => {
+  if (!req.auth) {
     if (req.nextUrl.pathname.startsWith('/api')) {
       return new NextResponse('Authentication Error', { status: 401 });
     }
@@ -16,7 +18,7 @@ export async function middleware(req: NextRequest) {
   }
 
   return NextResponse.next();
-}
+});
 
 export const config = {
   matcher: [

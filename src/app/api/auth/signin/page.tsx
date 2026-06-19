@@ -1,10 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../[...nextauth]/route';
+import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
-import { getProviders } from 'next-auth/react';
 import { Metadata } from 'next';
-import Signin from '@/components/Signin';
+import Signin, { AuthProvider } from '@/components/Signin';
 
 export const metadata: Metadata = {
   title: 'Signin',
@@ -12,20 +10,22 @@ export const metadata: Metadata = {
 };
 
 type Props = {
-  searchParams: {
-    callbackUrl: string;
-  };
+  searchParams: Promise<{
+    callbackUrl?: string;
+  }>;
 };
 
-export default async function SignInPage({ searchParams: { callbackUrl } }: Props) {
-  const session = await getServerSession(authOptions);
+// The app only configures the Google provider.
+const providers: AuthProvider[] = [{ id: 'google', name: 'Google' }];
+
+export default async function SignInPage({ searchParams }: Props) {
+  const { callbackUrl } = await searchParams;
+  const session = await auth();
   if (session) {
     // 세션이 있다면 (로그인을 했다면) 로그인을 할 필요가 없으므로 홈으로 보내주기
     // 만약 직접적인 url 입력 이나 로그인 링크를 다시 눌렀다면 홈으로 보내주기
     redirect('/');
   }
-
-  const providers = (await getProviders()) ?? {};
   return (
     <section
       className="
@@ -43,7 +43,7 @@ export default async function SignInPage({ searchParams: { callbackUrl } }: Prop
           게시물이 홈 화면에 노출되는 방식으로 개발하였습니다. 게시물이 있는 qustpwns93의 아이디를 팔로우 해주시면
           확인하실수 있습니다.
         </p>
-        <Signin providers={providers} callbackUrl={callbackUrl} />
+        <Signin providers={providers} callbackUrl={callbackUrl ?? '/'} />
       </div>
     </section>
   );
