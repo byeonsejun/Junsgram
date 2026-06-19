@@ -144,17 +144,24 @@ Junsgram 프로젝트(인스타그램 스타일 사진 공유 앱)의 전면 리
 - git history 스캔 완료 — 실제 시크릿 값 커밋 흔적 없음 → 교체 불필요.
 - 필요한 환경변수를 문서화한 `.env.example` 추가 완료.
 
-### Phase 3 — Auth.js v5 마이그레이션 + 서버 기반 행위자 식별 (P0/P1)
-- NextAuth v4 → Auth.js v5 마이그레이션 (이 과정에서 `route.ts`의 `authOptions` 안티패턴 제거됨).
-- `util/session.ts`와 모든 인증 코드를 **async Request API**에 맞게 수정.
-- 새 세션 API를 기반으로 **모든** mutation API(like, bookmark, comment, follow, delete)에서 서버 기반
-  행위자 식별 + 소유자/관리자 검증 강제. 관리자 판별을 public 환경변수에서 분리.
-- 식별 작업을 (더 일찍이 아니라) 여기서 함으로써 v4 API 기준으로 두 번 작성하는 것을 방지.
+> **순서 변경 + 결합 (의존성 발견):** Auth.js v5(beta.31)는 **Next.js 14+ 를 peer dependency로 요구**하고,
+> 반대로 **next-auth v4는 Next 16 / React 19를 미지원**(`next: ^12/13/14`, `react: ^17/18`)함.
+> 즉 Next 16으로 올리면 next-auth v4가 깨져 **빌드 가능한 중간 상태가 없음** → 기존 Phase 3(Auth)과
+> Phase 4(Next16)를 맞바꾸는 동시에 **한 브랜치에서 함께 진행**(`refactor/phase-3-4-next16-authjs-v5`).
+> 작업 순서는 "Next 16 업그레이드 → Auth.js v5"로 진행.
 
-### Phase 4 — Next.js 16 / React 19 업그레이드 + 캐싱 모델
+### Phase 3 — Next.js 16 / React 19 업그레이드 + 캐싱 모델 (구 Phase 4)
 - Next 16.2.x + React 19로 업그레이드; Turbopack 기본 빌드 검증.
 - `images.domains` → `images.remotePatterns` 마이그레이션; tsconfig `target`을 es2022로 상향.
+- async Request API(`cookies()`/`headers()`/`params`) 대응.
 - 새 캐싱 모델에 맞춰 Sanity 캐싱 전략(CDN + 태그 기반 재검증) 재작업(§6).
+
+### Phase 4 — Auth.js v5 마이그레이션 + 서버 기반 행위자 식별 (구 Phase 3, P0/P1)
+- NextAuth v4 → Auth.js v5 마이그레이션 (이 과정에서 `route.ts`의 `authOptions` 안티패턴 제거됨).
+  미들웨어 Edge 호환을 위해 Sanity 의존 `signIn` 콜백을 분리하는 split config 패턴 사용.
+- `util/session.ts`와 모든 인증 코드를 새 `auth()` API에 맞게 수정.
+- 새 세션 API를 기반으로 **모든** mutation API(like, bookmark, comment, follow, delete)에서 서버 기반
+  행위자 식별 + 소유자/관리자 검증 강제. 관리자 판별을 public 환경변수에서 분리.
 
 ### Phase 5 — API 계약 정리 (한 패스)
 - zod 입력 검증 + 에러 응답 표준화 + `res.ok` 인지 fetcher를 함께.
