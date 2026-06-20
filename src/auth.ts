@@ -8,16 +8,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     ...authConfig.callbacks,
     async signIn({ user }) {
-      if (!user.email) {
+      if (!user.email || !user.id) {
         return false;
       }
-      await addUser({
-        id: user.id!,
-        name: user.name ?? '',
-        image: user.image ?? undefined,
-        email: user.email,
-        username: user.email.split('@')[0],
-      });
+      // Upsert the user record, but don't block sign-in if it fails (e.g. a
+      // transient Sanity error). For existing users this is a no-op upsert, so
+      // a failure here must not lock them out — matches the pre-v5 behavior.
+      try {
+        await addUser({
+          id: user.id,
+          name: user.name ?? '',
+          image: user.image ?? undefined,
+          email: user.email,
+          username: user.email.split('@')[0],
+        });
+      } catch (error) {
+        console.error('[auth] addUser failed during signIn (continuing):', error);
+      }
       return true;
     },
   },
