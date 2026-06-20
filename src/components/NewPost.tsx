@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import GridSpinner from './ui/GridSpinner';
 import ImageSlide from './ui/ImageSlide';
 import TextDropEffect from './ui/TextDropEffect';
+import { API } from '@/lib/routes';
 
 type Props = {
   user: AuthUser;
@@ -86,7 +87,7 @@ export default function NewPost({ user: { username, image } }: Props) {
 
     setLoading(true);
 
-    fetch('/api/posts/', { method: 'POST', body: formData })
+    fetch(API.posts, { method: 'POST', body: formData })
       .then((res) => {
         if (!res.ok) {
           setError(`${res.status} ${res.statusText}`);

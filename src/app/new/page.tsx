@@ -2,6 +2,7 @@ import NewPost from '@/components/NewPost';
 import { Metadata } from 'next';
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
+import { API } from '@/lib/routes';
 
 export const metadata: Metadata = {
   title: 'New Post',
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 export default async function NewPage() {
   const session = await auth();
   if (!session?.user) {
-    redirect('/api/auth/signin');
+    redirect(API.signin);
   }
   return (
     <>

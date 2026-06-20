@@ -1,27 +1,28 @@
 import { useCacheKeys } from '@/context/CacheKeysContext';
 import { Comment, SimplePost } from '@/model/post';
 import { fetcher } from '@/lib/fetcher';
+import { API } from '@/lib/routes';
 import { useCallback } from 'react';
 import useSWR from 'swr';
 
 // Resolved values are discarded (mutate uses populateCache: false); typed as
 // SimplePost[] only to satisfy SWR's mutate signature.
 async function updateLike(id: string, like: boolean) {
-  return fetcher<SimplePost[]>('/api/likes', {
+  return fetcher<SimplePost[]>(API.likes, {
     method: 'PUT',
     body: JSON.stringify({ id, like }),
   });
 }
 
 async function addComment(id: string, comment: string) {
-  return fetcher<SimplePost[]>('/api/comments', {
+  return fetcher<SimplePost[]>(API.comments, {
     method: 'POST',
     body: JSON.stringify({ id, comment }),
   });
 }
 
 async function deleteTargetPost(postId: string) {
-  return fetcher<SimplePost[]>('/api/posts/', {
+  return fetcher<SimplePost[]>(API.posts, {
     method: 'DELETE',
     body: JSON.stringify({ postId }),
   });

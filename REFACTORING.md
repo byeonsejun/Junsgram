@@ -104,7 +104,8 @@ Junsgram 프로젝트(인스타그램 스타일 사진 공유 앱)의 전면 리
   변경 폭이 크고 위험 대비 가치가 낮아 **보류**(필요 시 별도 패스).
 - [ ] **ESLint/Prettier** — Next 16에서 `next lint`가 deprecated → ESLint flat config 채택이 별도 작업.
   Phase 7로 이관(CI와 함께).
-- [ ] **매직 스트링 추출** — API 경로 상수화. 우선순위 낮아 **남김**.
+- [x] **매직 스트링 추출** — `src/lib/routes.ts`의 `API` 상수로 API 경로 통합, hooks/context/pages/NewPost
+  적용. Phase 7b에서 완료.
 
 ## 6. 성능 & UX (P3)
 
@@ -112,9 +113,10 @@ Junsgram 프로젝트(인스타그램 스타일 사진 공유 앱)의 전면 리
   레이턴시 발생. 읽기 쿼리는 CDN + 태그 기반 재검증 사용.
   *§2의 Next 16 캐싱 모델 마이그레이션과 함께 처리.*
 - [ ] **페이지네이션 / 무한 스크롤** — 피드와 프로필 그리드 (현재 모든 게시물을 한 번에 가져옴).
-- [ ] **로딩 & 에러 상태** — 에러 바운더리와 스켈레톤 추가; 스피너 사용 통일(`GridSpinner` vs
-  `react-spinners`).
-- [ ] **접근성** — alt 텍스트, 아이콘 전용 버튼의 `aria-label`, 모달 포커스 상태.
+- [~] **로딩 & 에러 상태** — App Router `loading.tsx`(SSR-safe CSS 스피너) + `error.tsx` +
+  `global-error.tsx` 추가(Phase 7b). 스켈레톤·스피너 전면 통일은 남음.
+- [~] **접근성** — 아이콘 전용 버튼 `aria-label` 보강(PostDetail 옵션/댓글삭제), 로딩에 `role=status`.
+  alt 텍스트는 Phase 6에서 수정. 모달 포커스 트랩 등 전면 sweep은 남음.
 - [ ] **이미지 최적화** — `sizes` prop과 `urlFor`의 반응형 너비 검토(현재 800px 고정).
 
 ## 7. 테스트 & 도구 (P2)
@@ -177,9 +179,10 @@ Junsgram 프로젝트(인스타그램 스타일 사진 공유 앱)의 전면 리
 - 이관: 주석 전면 영어화·매직 스트링 상수화는 보류, ESLint flat config는 Phase 7(CI와 함께).
   클라이언트측 업로드 검증은 Phase 7(UX).
 
-### Phase 7 — 테스트 & 도구 (1차 완료) / 성능·UX (남음)
-- [x] Vitest 도입 + `lib` 단위 테스트 14개; CI(typecheck+test+build); README; 클라이언트측 업로드 검증.
+### Phase 7 — 테스트 & 도구 (완료) / 성능·UX (일부 완료)
+- [x] (7a) Vitest + `lib` 단위 테스트 14개; CI(typecheck+test+build); README; 클라이언트측 업로드 검증.
+- [x] (7b) App Router `loading`/`error`/`global-error` 바운더리; 아이콘 버튼 aria-label; API 경로 상수화(`lib/routes.ts`).
 - [ ] **남은 성능/UX (별도 작업 — 설계 결정/브라우저 검증 필요):**
   - 캐싱 전략(Sanity CDN + 태그 재검증), 피드/프로필 페이지네이션·무한 스크롤
-  - 로딩/에러 바운더리·스켈레톤, 스피너 통일, 접근성 sweep, 이미지 `sizes`/반응형 너비
-  - Playwright E2E(OAuth 모킹), ESLint flat config + lint를 CI에 추가, 매직 스트링 상수화
+  - 스켈레톤·스피너 전면 통일, 접근성 sweep(모달 포커스 트랩), 이미지 `sizes`/반응형 너비
+  - Playwright E2E(OAuth 모킹), ESLint flat config + lint를 CI에 추가
