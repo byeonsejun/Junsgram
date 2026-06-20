@@ -91,12 +91,12 @@ export default function PostDetail({ post }: Props) {
           ) : (
             <ImageSlide>
               {data &&
-                data.image.map((img, index) => (
-                  <div className="w-full h-full aspect-square relative" key={index}>
+                data.image.map((img) => (
+                  <div className="w-full h-full aspect-square relative" key={img}>
                     <Image
                       className="object-contain p-2"
                       src={img}
-                      alt={`photo by ${data.username[index]}`}
+                      alt={`photo by ${data.username}`}
                       priority
                       fill
                       sizes="650px"

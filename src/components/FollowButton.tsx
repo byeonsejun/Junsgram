@@ -1,7 +1,7 @@
 'use client';
 
 import { ProfileUser } from '@/model/user';
-import CommonButton from './ui/CommonButton';
+import Button from './ui/Button';
 import useMe from '@/hooks/me';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
@@ -41,7 +41,7 @@ export default function FollowButton({ user }: Props) {
               <PulseLoader size={6} />
             </div>
           )}
-          <CommonButton disabled={isUpdating} text={text} onClick={handleFollow} red={text === '팔로우 취소'} />
+          <Button disabled={isUpdating} text={text} onClick={handleFollow} red={text === '팔로우 취소'} />
         </div>
       )}
     </>

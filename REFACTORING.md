@@ -66,14 +66,14 @@ Junsgram 프로젝트(인스타그램 스타일 사진 공유 앱)의 전면 리
 
 ## 3. 버그 & 정확성 (별도 표기 없으면 P1)
 
-- [ ] **`PostDetail.tsx` alt 텍스트** — `alt={`photo by ${data.username[index]}`}`: `username`은 문자열
-  이라 인덱싱하면 글자 하나가 나옴. `data.username`으로 수정.
+- [x] **`PostDetail.tsx` alt 텍스트** — `data.username[index]`(문자열 인덱싱 버그) → `data.username`.
+  Phase 6에서 완료.
 - [x] **`deleteTargetPost` 에러 처리** (`hooks/posts.ts`) — 잘못된 `.catch((err) => err.json())` 제거.
   이제 공통 `fetcher`가 non-2xx에서 throw하므로 SWR `rollbackOnError`가 정상 동작함. Phase 5에서 완료.
 - [~] **`NewPost` 업로드 검증** — **서버측 완료**(Phase 5): 타입(`image/*`)·크기(≤10MB)·개수(≤10) 검증 +
   `length` 신뢰 제거. **클라이언트측 검증은 남음**(Phase 6/7에서 UX 차원).
-- [ ] **(P2/P3) 슬라이드 루프의 `key={index}`** (`PostDetail`) — 영향 작음; 해당 컴포넌트 수정 시 안정적인
-  키로 교체.
+- [x] **(P2/P3) 슬라이드 루프의 `key={index}`** (`PostDetail`) — `key={img}`(이미지 URL)로 교체.
+  Phase 6에서 완료.
 
 ## 4. 아키텍처 & 구조 (P2)
 
@@ -84,25 +84,27 @@ Junsgram 프로젝트(인스타그램 스타일 사진 공유 앱)의 전면 리
   전부 불투명 500). Phase 5에서 완료.
 - [x] **fetcher / 에러 처리 통합** — `src/lib/fetcher.ts` 추가(non-2xx에서 throw). `SWRConfigContext`와
   모든 mutation 훅(me/posts/post)이 사용. Phase 5에서 완료.
-- [~] **서비스 레이어 타입** — Phase 4/5 신규 함수(`getPostAuthorId`, `getCommentContext`)는 명시 타입.
-  기존 `client.fetch` 다수는 여전히 암묵 `any` — 전반적 타이핑은 **남음**(Phase 6).
-- [ ] **중복 버튼 컴포넌트 통합** — `components/ColorButton.tsx` vs `components/ui/ColorButton.tsx`,
-  거기에 `ui/Button`, `ui/CommonButton`, `ui/LoginButton`, `ui/ToggleButton`까지. 설정 가능한 단일
-  `Button`으로 통합.
-- [ ] **오타 이름 수정** — `src/context/CacheKeysConttext.tsx`(파일명)와 `CaacheKeysContext`(export)
-  → `CacheKeysContext`. import 경로 갱신.
-- [ ] **폴더 규칙** — 횡단 관심사용 `src/lib` 도입; `service` vs `util` 역할 명확화.
+- [x] **서비스 레이어 타입** — read 함수에 명시 반환 타입 추가(`getUserByUsername→HomeUser`,
+  `searchUsers→SearchUser[]`, `getUserForProfile→ProfileUser`, posts getter들→`SimplePost[]`/`GetFullPost`).
+  Phase 6에서 완료. (mutation 커밋 결과 타입은 추후.)
+- [x] **중복 버튼 컴포넌트 통합** — 죽은 `components/ColorButton.tsx` 삭제,
+  `ui/CommonButton`을 `ui/Button`으로 통합(FollowButton 전환, red hover 반영). `ui/ColorButton`/
+  `LoginButton`/`ToggleButton`은 용도 구별돼 유지. Phase 6에서 완료.
+- [x] **오타 이름 수정** — 파일 `CacheKeysConttext.tsx`→`CacheKeysContext.tsx`, export
+  `CaacheKeysContext`→`CacheKeysContext`, import 3곳 갱신. Phase 6에서 완료.
+- [x] **폴더 규칙** — `src/lib`(http/validation/fetcher) Phase 5에서 도입됨.
 - [x] ~~`authOptions`를 `route.ts` 밖으로 이동~~ — **Auth.js v5 마이그레이션(§2)에 흡수**. v5엔
   `authOptions` export가 없어 거기서 자연히 해소됨. 별도 작업 없음.
 
 ## 5. 코드 품질 & 정리 (P2)
 
-- [ ] **죽은/주석 처리된 코드 및 디버그 로그 제거** — `service/posts.ts`, `hooks/*`,
-  `components/NewPost.tsx`, auth route 등에 주석 처리된 블록과 `// console.log(...)` 다수.
-- [ ] **주석 정리/통일** — 인라인 한글 주석이 광범위함. 유용한 것만 간결한 영어로 정리하고, 코드를 그대로
-  서술하는 설명성 주석은 제거.
-- [ ] **ESLint/Prettier** — 더 엄격한 공통 설정 도입; 레포 전체 포맷 패스; `eslint-plugin-tailwindcss` 검토.
-- [ ] **매직 스트링 추출** — API 경로(`/api/posts`, `/api/me`, …)를 상수 모듈로 분리.
+- [x] **죽은/주석 처리된 코드 및 디버그 로그 제거** — `// console.log(...)` 4곳 제거(NewPost, hooks/post,
+  service/posts). Phase 6에서 완료.
+- [~] **주석 정리/통일** — 명백한 디버그/죽은 주석은 제거함. 광범위한 한글 설명 주석의 전면 영어화는
+  변경 폭이 크고 위험 대비 가치가 낮아 **보류**(필요 시 별도 패스).
+- [ ] **ESLint/Prettier** — Next 16에서 `next lint`가 deprecated → ESLint flat config 채택이 별도 작업.
+  Phase 7로 이관(CI와 함께).
+- [ ] **매직 스트링 추출** — API 경로 상수화. 우선순위 낮아 **남김**.
 
 ## 6. 성능 & UX (P3)
 
@@ -167,10 +169,12 @@ Junsgram 프로젝트(인스타그램 스타일 사진 공유 앱)의 전면 리
 - [x] 서버측 업로드 검증(타입/크기/개수) 추가. `src/lib` 디렉터리 도입.
 - [~] 서비스 반환 타입: 신규 함수만 명시. 기존 `client.fetch` 전반 타이핑은 Phase 6으로.
 
-### Phase 6 — 아키텍처 & 코드 품질 정리
-- 버튼 컴포넌트 통합; `CacheKeysContext` 오타 수정; (`src/lib`는 Phase 5에서 도입됨).
-- 죽은 코드 / 디버그 로그 제거; 주석 정리; ESLint/Prettier 패스; 매직 스트링 추출.
-- 서비스 레이어 전반 타이핑; 남은 정확성 항목(alt 텍스트, 슬라이드 키, 클라이언트측 업로드 검증).
+### Phase 6 — 아키텍처 & 코드 품질 정리 ✅ 완료
+- [x] 버튼 통합(죽은 ColorButton 삭제, CommonButton→Button), `CacheKeysContext` 오타 수정.
+- [x] 죽은 console.log 주석 제거, 서비스 read 함수 반환 타입 명시.
+- [x] 정확성: PostDetail alt 텍스트, 슬라이드 key 수정.
+- 이관: 주석 전면 영어화·매직 스트링 상수화는 보류, ESLint flat config는 Phase 7(CI와 함께).
+  클라이언트측 업로드 검증은 Phase 7(UX).
 
 ### Phase 7 — 성능, UX, 테스트 & CI
 - 페이지네이션/무한 스크롤, 로딩/에러 바운더리, 접근성, 이미지 최적화.

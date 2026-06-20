@@ -1,4 +1,4 @@
-import { SimplePost } from '@/model/post';
+import { GetFullPost, SimplePost } from '@/model/post';
 import { client, urlFor } from './sanity';
 const simplePostProjection = `
   ...,
@@ -13,7 +13,7 @@ const simplePostProjection = `
 `; // post.author.username -> post.username
 // [ { asset: {_ref: 'image-400e9a09266fbca8b94ee9ca82900f41a88b2d45-18x34-png'}, _key: 'photo_0_1703674479864' }, { asset: {_ref: 'image-400e9a09266fbca8b94ee9ca82900f41a88b2d45-18x34-png'}, _key: 'photo_0_1703674479864' } ]
 
-export async function getFollowingPostsOf(username: string) {
+export async function getFollowingPostsOf(username: string): Promise<SimplePost[]> {
   return client
     .fetch(
       `
@@ -26,7 +26,7 @@ export async function getFollowingPostsOf(username: string) {
     .then(mapPosts);
 }
 
-export async function getPost(id: string) {
+export async function getPost(id: string): Promise<GetFullPost> {
   return client
     .fetch(
       `
@@ -51,7 +51,7 @@ export async function getPost(id: string) {
     .then((post) => ({ ...post, image: mapPost(post) }));
 }
 // ({ ...post, image: urlFor(post.image) })
-export async function getPostsOf(username: string) {
+export async function getPostsOf(username: string): Promise<SimplePost[]> {
   return client
     .fetch(
       `*[_type == "post" && author->username == $username]
@@ -63,7 +63,7 @@ export async function getPostsOf(username: string) {
     )
     .then(mapPosts);
 }
-export async function getLikedOf(username: string) {
+export async function getLikedOf(username: string): Promise<SimplePost[]> {
   return client
     .fetch(
       `*[_type == "post" && $username in likes[]->username]
@@ -75,7 +75,7 @@ export async function getLikedOf(username: string) {
     )
     .then(mapPosts);
 }
-export async function getSavedPostsOf(username: string) {
+export async function getSavedPostsOf(username: string): Promise<SimplePost[]> {
   return client
     .fetch(
       `*[_type == "post" && _id in *[_type == "user" && username == $username].bookmarks[]._ref]
@@ -147,9 +147,6 @@ export async function deleteComment(postId: string, key: string) {
 }
 
 export async function createPost(userId: string, text: string, blobArray: Blob[]) {
-  // console.log('포스트 생성시 새니티 통신');
-
-  // Blob들을 저장할 배열
   const uploadPromises: Promise<string>[] = [];
 
   // Blob 배열의 각 Blob을 순회하면서 업로드 작업을 Promise 배열에 추가합니다.

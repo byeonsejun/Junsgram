@@ -24,8 +24,6 @@ export default function useDetailPost(postId: string) {
 
   const { mutate: globalMutate } = useSWRConfig();
 
-  // console.log(post); // 풀 포스트 = 한개의 대한 모든 디테일 포스트정보
-
   const postComment = useCallback(
     (comment: Comment) => {
       if (!post) return;

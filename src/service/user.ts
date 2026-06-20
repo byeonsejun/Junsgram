@@ -1,4 +1,4 @@
-import { ProfileUser } from '@/model/user';
+import { HomeUser, ProfileUser, SearchUser } from '@/model/user';
 import { client } from './sanity';
 
 type OAuthUser = {
@@ -23,7 +23,7 @@ export async function addUser({ id, name, email, username, image }: OAuthUser) {
   });
 }
 
-export async function getUserByUsername(username: string) {
+export async function getUserByUsername(username: string): Promise<HomeUser> {
   return client.fetch(
     `*[_type == "user" && username == $username][0]{
       ...,
@@ -36,7 +36,7 @@ export async function getUserByUsername(username: string) {
   );
 }
 
-export async function searchUsers(keyword?: string) {
+export async function searchUsers(keyword?: string): Promise<SearchUser[]> {
   const query = keyword //
     ? `&& (name match $match || username match $match)`
     : '';
@@ -59,7 +59,7 @@ export async function searchUsers(keyword?: string) {
     );
 }
 
-export async function getUserForProfile(username: string) {
+export async function getUserForProfile(username: string): Promise<ProfileUser> {
   return client
     .fetch(
       `*[_type == "user" && username == $username][0]{

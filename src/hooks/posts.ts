@@ -1,4 +1,4 @@
-import { useCacheKeys } from '@/context/CacheKeysConttext';
+import { useCacheKeys } from '@/context/CacheKeysContext';
 import { Comment, SimplePost } from '@/model/post';
 import { fetcher } from '@/lib/fetcher';
 import { useCallback } from 'react';

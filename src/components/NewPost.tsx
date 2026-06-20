@@ -29,8 +29,6 @@ export default function NewPost({ user: { username, image } }: Props) {
 
     const selectFiles: FileList | null = e.target?.files;
 
-    // console.log('파일직접선택시');
-
     if (selectFiles == null) return;
     setFiles(selectFiles);
 
@@ -54,7 +52,6 @@ export default function NewPost({ user: { username, image } }: Props) {
     setDragging(false);
 
     const selectFiles: FileList | null = e.dataTransfer?.files;
-    // console.log('파일드랍시');
 
     if (selectFiles == null) return;
     setFiles(selectFiles);
