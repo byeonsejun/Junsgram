@@ -1,7 +1,6 @@
 import GridSpinner from './ui/GridSpinner';
 import PostGridCard from './PostGridCard';
 import usePosts from '@/hooks/posts';
-import { RiH3 } from 'react-icons/ri';
 
 // user 상세 페이지에서 쓰이는 컴포넌트
 export default function PostGrid() {
@@ -12,7 +11,7 @@ export default function PostGrid() {
       <ul className="grid grid-cols-3 gap-4 py-4 px-8">
         {posts &&
           posts.map((post, index) => (
-            <li key={index}>
+            <li key={post.id}>
               <PostGridCard post={post} priority={index < 6} />
             </li>
           ))}

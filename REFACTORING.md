@@ -116,9 +116,10 @@ Junsgram 프로젝트(인스타그램 스타일 사진 공유 앱)의 전면 리
 - [ ] **페이지네이션 / 무한 스크롤** — 피드와 프로필 그리드 (현재 모든 게시물을 한 번에 가져옴).
 - [~] **로딩 & 에러 상태** — App Router `loading.tsx`(SSR-safe CSS 스피너) + `error.tsx` +
   `global-error.tsx` 추가(Phase 7b). 스켈레톤·스피너 전면 통일은 남음.
-- [~] **접근성** — 아이콘 전용 버튼 `aria-label` 보강(PostDetail 옵션/댓글삭제), 로딩에 `role=status`.
-  alt 텍스트는 Phase 6에서 수정. 모달 포커스 트랩 등 전면 sweep은 남음.
-- [ ] **이미지 최적화** — `sizes` prop과 `urlFor`의 반응형 너비 검토(현재 800px 고정).
+- [~] **접근성** — 아이콘 전용 버튼 `aria-label`(PostDetail 옵션/댓글삭제, PostModal 닫기), 로딩 `role=status`,
+  모달 `role=dialog`+`aria-modal`+Escape 닫기+배경 스크롤 잠금(Phase 7d). 포커스 트랩 전면 sweep은 남음.
+- [~] **이미지 최적화** — 그리드 카드 `sizes`를 `(max-width:768px) 33vw, 280px`로 조정(과대 요청 완화).
+  `urlFor` 800px 고정 + 피드 `sizes` 추가 튜닝은 남음.
 
 ## 7. 테스트 & 도구 (P2)
 
@@ -184,7 +185,10 @@ Junsgram 프로젝트(인스타그램 스타일 사진 공유 앱)의 전면 리
 - [x] (7a) Vitest + `lib` 단위 테스트 14개; CI(typecheck+test+build); README; 클라이언트측 업로드 검증.
 - [x] (7b) App Router `loading`/`error`/`global-error` 바운더리; 아이콘 버튼 aria-label; API 경로 상수화(`lib/routes.ts`).
 - [x] (7c) ESLint flat config(`eslint.config.mjs`) 전환 + `lint` 스크립트(`eslint .`) + CI에 lint 추가.
+- [x] (7d) 모달 a11y(dialog/aria-modal/Escape/스크롤 잠금/닫기 aria-label); 그리드 안정적 key +
+  미사용 import 제거; 그리드 이미지 `sizes` 최적화.
 - [ ] **남은 성능/UX (별도 작업 — 설계 결정/브라우저 검증 필요):**
-  - 캐싱 전략(Sanity CDN + 태그 재검증), 피드/프로필 페이지네이션·무한 스크롤
-  - 스켈레톤·스피너 전면 통일, 접근성 sweep(모달 포커스 트랩), 이미지 `sizes`/반응형 너비
-  - Playwright E2E(OAuth 모킹), Prettier 도입
+  - **캐싱 전략** — 토큰 인증 read의 CDN 동작이 미묘(잘못 켜면 read 실패 가능) → 신중한 검증 필요.
+  - **페이지네이션/무한 스크롤** — 실제 데이터 3건뿐이라 효과 없음 + GROQ/SWR Infinite/스크롤 브라우저 검증 필요.
+  - 스켈레톤·스피너 전면 통일, 모달 포커스 트랩, 피드 이미지 `sizes` 추가 튜닝.
+  - Playwright E2E(OAuth 모킹), Prettier 도입.

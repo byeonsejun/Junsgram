@@ -32,7 +32,7 @@ export default function PostGridCard({ post, priority }: Props) {
         src={image[0]} //
         alt={`photo by ${username}`}
         fill
-        sizes="650px"
+        sizes="(max-width: 768px) 33vw, 280px"
         priority={priority}
         onClick={handleOpenPost}
       />
