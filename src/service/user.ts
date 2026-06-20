@@ -45,6 +45,7 @@ export async function searchUsers(keyword?: string): Promise<SearchUser[]> {
     .fetch(
       `*[_type == "user" ${query}]{
       ...,
+      "id": _id,
       "following": count(following),
       "followers": count(followers),
     }`,
