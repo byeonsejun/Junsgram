@@ -1,19 +1,22 @@
 import { Comment, FullPost, GetComment, GetFullPost } from '@/model/post';
+import { fetcher } from '@/lib/fetcher';
 import { useCallback } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 
+// Resolved values are discarded (mutate uses populateCache: false); typed as
+// GetFullPost only to satisfy SWR's mutate signature.
 async function addComment(id: string, comment: string) {
-  return fetch('/api/comments', {
+  return fetcher<GetFullPost>('/api/comments', {
     method: 'POST',
     body: JSON.stringify({ id, comment }),
-  }).then((res) => res.json());
+  });
 }
 
 async function removeComment(id: string, key: string) {
-  return fetch('/api/comments', {
+  return fetcher<GetFullPost>('/api/comments', {
     method: 'PUT',
     body: JSON.stringify({ id, key }),
-  }).then((res) => res.json());
+  });
 }
 
 export default function useDetailPost(postId: string) {

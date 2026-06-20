@@ -1,19 +1,22 @@
 import { HomeUser } from '@/model/user';
+import { fetcher } from '@/lib/fetcher';
 import { useCallback } from 'react';
 import useSWR from 'swr';
 
+// The resolved value is discarded (mutate uses populateCache: false); typed as
+// HomeUser only to satisfy SWR's mutate signature.
 async function updateBookmark(postId: string, bookmark: boolean) {
-  return fetch('/api/bookmarks', {
+  return fetcher<HomeUser>('/api/bookmarks', {
     method: 'PUT',
     body: JSON.stringify({ id: postId, bookmark }),
-  }).then((res) => res.json());
+  });
 }
 
 async function updateFollow(targetId: string, follow: boolean) {
-  return fetch('/api/follow', {
+  return fetcher<HomeUser>('/api/follow', {
     method: 'PUT',
     body: JSON.stringify({ id: targetId, follow }),
-  }).then((res) => res.json());
+  });
 }
 
 export default function useMe() {

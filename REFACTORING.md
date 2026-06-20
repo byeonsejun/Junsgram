@@ -29,10 +29,10 @@ Junsgram 프로젝트(인스타그램 스타일 사진 공유 앱)의 전면 리
 - [x] **GROQ 인젝션 (읽기 쿼리)** — `src/service/posts.ts`와 `src/service/user.ts`의 모든 `client.fetch`
   읽기 쿼리를 파라미터화함 (`$username` / `$id` / `$postId` / `$match`). 기존 문자열 보간
   (`username == "${username}"`, `match "*${keyword}*"`, `_id == "${id}"`) 제거. Phase 1에서 완료.
-- [ ] **잔여: patch `.unset()` 셀렉터** — `dislikePost`, `deleteComment`, `removeBookmark`,
+- [x] **잔여: patch `.unset()` 셀렉터** — `dislikePost`, `deleteComment`, `removeBookmark`,
   `follow`/`unfollow`가 클라이언트가 보낸 ID를 GROQ 필터 셀렉터에 보간함
-  (예: `likes[_ref=="${userId}"]`). Sanity patch 셀렉터는 `$param` 플레이스홀더를 지원하지 **않으므로**,
-  사용 전에 **ID 형식 검증**이 필요함 — Phase 5의 zod 검증 패스에 포함.
+  (예: `likes[_ref=="${userId}"]`). Sanity patch 셀렉터는 `$param`을 지원하지 않아, 대신 zod의 `sanityId`
+  정규식(`^[a-zA-Z0-9._-]+$`)으로 모든 id/key를 라우트 진입 시 검증해 인젝션 문자를 차단함. Phase 5에서 완료.
 - [x] **쿼리 로직 / 연산자 우선순위 버그** — `searchUsers`가 기존에
   `*[_type == "user" && (name match ...) || (username match ...)]` 를 만들었는데, 괄호 없는 `&&`/`||`
   혼용으로 타입 필터가 깨졌음. 이제 `&& (name match $match || username match $match)`. Phase 1에서 완료.
@@ -68,25 +68,24 @@ Junsgram 프로젝트(인스타그램 스타일 사진 공유 앱)의 전면 리
 
 - [ ] **`PostDetail.tsx` alt 텍스트** — `alt={`photo by ${data.username[index]}`}`: `username`은 문자열
   이라 인덱싱하면 글자 하나가 나옴. `data.username`으로 수정.
-- [ ] **`deleteTargetPost` 에러 처리** (`hooks/posts.ts`) — `.catch((err) => err.json())`는 Error 객체에
-  `.json()`을 호출하는 잘못된 폴백. 에러 전파 방식 수정.
-- [ ] **`NewPost` 업로드 검증** — 파일 타입/크기/개수에 대한 클라이언트 검증 없음; 서버 루프가 `length`
-  필드를 무조건 신뢰함. 양쪽에서 검증(보안 교차참조, §1).
+- [x] **`deleteTargetPost` 에러 처리** (`hooks/posts.ts`) — 잘못된 `.catch((err) => err.json())` 제거.
+  이제 공통 `fetcher`가 non-2xx에서 throw하므로 SWR `rollbackOnError`가 정상 동작함. Phase 5에서 완료.
+- [~] **`NewPost` 업로드 검증** — **서버측 완료**(Phase 5): 타입(`image/*`)·크기(≤10MB)·개수(≤10) 검증 +
+  `length` 신뢰 제거. **클라이언트측 검증은 남음**(Phase 6/7에서 UX 차원).
 - [ ] **(P2/P3) 슬라이드 루프의 `key={index}`** (`PostDetail`) — 영향 작음; 해당 컴포넌트 수정 시 안정적인
   키로 교체.
 
 ## 4. 아키텍처 & 구조 (P2)
 
-- [ ] **입력 검증 레이어** — 모든 API 요청 바디/폼(posts, comments, likes, bookmarks, follow)에 `zod`
-  스키마 추가. 임시방편식 `if (!id || x == null)` 검사 대체.
-- [ ] **API 에러 응답 표준화** — 핸들러마다 형식 불일치: 어떤 곳은 `new Response(JSON.stringify(error),
-  {500})`, 어떤 곳은 `NextResponse`. 에러 헬퍼 + 응답 형태를 도입.
-- [ ] **fetcher / 에러 처리 통합** — `SWRConfigContext`의 fetcher가 non-2xx 응답을 무시함(에러 페이지에
-  `res.json()` 호출 시 불투명하게 throw). `res.ok`를 체크하는 fetcher 추가.
-  > **위 세 항목을 하나의 "API contract cleanup" 패스로 묶어서 처리(Phase 5)** — zod 검증 + 에러 응답
-  > 표준화 + `res.ok` 인지 fetcher는 함께 가는 게 자연스러움.
-- [ ] **서비스 레이어 타입** — 다수 서비스 함수가 `client.fetch`에서 `any`를 반환. 명시적 반환 타입과
-  공통 매퍼 추가.
+- [x] **입력 검증 레이어** — `src/lib/validation.ts`에 zod 스키마 추가(likes/bookmarks/follow/comments
+  추가·삭제/post 삭제). 모든 mutation 라우트가 `safeParse`로 검증, 임시방편 `if (!id ...)` 제거. Phase 5에서 완료.
+- [x] **API 에러 응답 표준화** — `src/lib/http.ts`에 `jsonError`/`badRequest`/`forbidden`/`notFound`/
+  `serverError` 도입. `{ error: string }` 형태 통일, Sanity 업스트림 에러는 실제 status로 전달(이전엔
+  전부 불투명 500). Phase 5에서 완료.
+- [x] **fetcher / 에러 처리 통합** — `src/lib/fetcher.ts` 추가(non-2xx에서 throw). `SWRConfigContext`와
+  모든 mutation 훅(me/posts/post)이 사용. Phase 5에서 완료.
+- [~] **서비스 레이어 타입** — Phase 4/5 신규 함수(`getPostAuthorId`, `getCommentContext`)는 명시 타입.
+  기존 `client.fetch` 다수는 여전히 암묵 `any` — 전반적 타이핑은 **남음**(Phase 6).
 - [ ] **중복 버튼 컴포넌트 통합** — `components/ColorButton.tsx` vs `components/ui/ColorButton.tsx`,
   거기에 `ui/Button`, `ui/CommonButton`, `ui/LoginButton`, `ui/ToggleButton`까지. 설정 가능한 단일
   `Button`으로 통합.
@@ -162,14 +161,16 @@ Junsgram 프로젝트(인스타그램 스타일 사진 공유 앱)의 전면 리
   관리자/게시물 작성자/댓글 작성자만 — 서버 검증 추가.
 - [x] 관리자 판별을 서버 전용 `ADMIN_ID` env로 분리(`isAdmin()`). `NEXT_PUBLIC_ADMIN_ID`는 UI 용도만.
 
-### Phase 5 — API 계약 정리 (한 패스)
-- zod 입력 검증 + 에러 응답 표준화 + `res.ok` 인지 fetcher를 함께.
-- 서비스 함수의 명시적 반환 타입 / 공통 매퍼 추가.
+### Phase 5 — API 계약 정리 (한 패스) ✅ 완료
+- [x] zod 입력 검증(`lib/validation.ts`) + 에러 응답 표준화(`lib/http.ts`) + `res.ok` 인지
+  fetcher(`lib/fetcher.ts`)를 함께. patch `.unset()` 셀렉터 ID 인젝션 잔여(§1)도 `sanityId` 정규식으로 차단.
+- [x] 서버측 업로드 검증(타입/크기/개수) 추가. `src/lib` 디렉터리 도입.
+- [~] 서비스 반환 타입: 신규 함수만 명시. 기존 `client.fetch` 전반 타이핑은 Phase 6으로.
 
 ### Phase 6 — 아키텍처 & 코드 품질 정리
-- 버튼 컴포넌트 통합; `CacheKeysContext` 오타 수정; `src/lib` 도입.
+- 버튼 컴포넌트 통합; `CacheKeysContext` 오타 수정; (`src/lib`는 Phase 5에서 도입됨).
 - 죽은 코드 / 디버그 로그 제거; 주석 정리; ESLint/Prettier 패스; 매직 스트링 추출.
-- 남은 정확성 항목 수정(alt 텍스트, `deleteTargetPost`, 업로드 검증, 슬라이드 키).
+- 서비스 레이어 전반 타이핑; 남은 정확성 항목(alt 텍스트, 슬라이드 키, 클라이언트측 업로드 검증).
 
 ### Phase 7 — 성능, UX, 테스트 & CI
 - 페이지네이션/무한 스크롤, 로딩/에러 바운더리, 접근성, 이미지 최적화.

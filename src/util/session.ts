@@ -1,5 +1,6 @@
 import { auth } from '@/auth';
 import { AuthUser } from '@/model/user';
+import { unauthorized } from '@/lib/http';
 
 export async function withSessionUser(
   // 전달받은 콜백 함수를 리턴함
@@ -9,7 +10,7 @@ export async function withSessionUser(
   const user = session?.user;
 
   if (!user) {
-    return new Response('Authentication Error', { status: 401 });
+    return unauthorized();
   }
 
   return callbackFn(user);
