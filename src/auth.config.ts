@@ -15,9 +15,12 @@ export const authConfig = {
     signIn: '/api/auth/signin',
   },
   callbacks: {
-    jwt({ token, user }) {
-      if (user?.id) {
-        token.id = user.id;
+    jwt({ token, account }) {
+      // Use the stable provider account id (Google `sub`) as our user id, NOT
+      // Auth.js's per-sign-in random `user.id`. This keeps token.id aligned with
+      // the Sanity user document `_id` (and avoids creating duplicate users).
+      if (account?.providerAccountId) {
+        token.id = account.providerAccountId;
       }
       return token;
     },
