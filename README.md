@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Junsgram
+
+An Instagram-style photo-sharing app — feed, post detail, likes, comments, bookmarks, follow,
+user search, and photo upload.
+
+## Tech Stack
+
+- **Next.js 16** (App Router, Turbopack) · **React 19** · **TypeScript**
+- **Auth.js v5** (Google OAuth)
+- **Sanity** (content store + image hosting)
+- **SWR** (client data fetching + optimistic updates)
+- **Tailwind CSS**
+- **zod** (API input validation) · **Vitest** (tests)
 
 ## Getting Started
 
-First, run the development server:
+### 1. Prerequisites
+
+- Node.js **20+**
+- A [Sanity](https://www.sanity.io/) project (with an **Editor** API token for writes)
+- Google OAuth credentials (Google Cloud Console)
+
+### 2. Environment variables
+
+Copy the example file and fill in real values:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| Variable | Description |
+| --- | --- |
+| `GOOGLE_OAUTH_ID` / `GOOGLE_OAUTH_SECRET` | Google OAuth client credentials |
+| `NEXTAUTH_URL` | App base URL (e.g. `http://localhost:3000`) |
+| `NEXTAUTH_SECRET` | Random secret (`openssl rand -base64 32`) |
+| `SANITY_STUDIO_SANITY_PROJECT_ID` / `SANITY_STUDIO_SANITY_DATASET` | Sanity project + dataset |
+| `SANITY_SECRET_TOKEN` | Sanity **Editor** token (read **and** write) |
+| `ADMIN_ID` | Server-only admin username (authoritative) |
+| `NEXT_PUBLIC_ADMIN_ID` | Client-side admin UI affordance only |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+> The Sanity token must have **Editor** (write) permission, or likes/comments/follow/post
+> creation will fail with a 403. A read-only (Viewer) token only supports browsing.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### 3. Install & run
 
-## Learn More
+```bash
+npm install
+npm run dev      # http://localhost:3000
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Scripts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Script | Description |
+| --- | --- |
+| `npm run dev` | Start the dev server (Turbopack) |
+| `npm run build` | Production build |
+| `npm run start` | Serve the production build |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm test` | Run the Vitest suite |
+| `npm run test:watch` | Vitest in watch mode |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+```
+src/
+  app/            Routes + API route handlers
+  components/     UI (+ ui/, ui/icons/)
+  context/        Auth / SWR providers, cache-key context
+  hooks/          SWR data hooks
+  lib/            Cross-cutting utils (http, validation, fetcher)
+  model/          Domain types
+  service/        Sanity data access
+  util/           Session helpers, date formatting
+  auth.ts         Auth.js v5 (Node) config
+  auth.config.ts  Auth.js v5 edge-safe base config
+  proxy.ts        Route protection (Next 16 proxy convention)
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+See [`REFACTORING.md`](./REFACTORING.md) for the renewal plan and progress.

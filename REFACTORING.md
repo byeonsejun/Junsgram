@@ -70,8 +70,8 @@ Junsgram 프로젝트(인스타그램 스타일 사진 공유 앱)의 전면 리
   Phase 6에서 완료.
 - [x] **`deleteTargetPost` 에러 처리** (`hooks/posts.ts`) — 잘못된 `.catch((err) => err.json())` 제거.
   이제 공통 `fetcher`가 non-2xx에서 throw하므로 SWR `rollbackOnError`가 정상 동작함. Phase 5에서 완료.
-- [~] **`NewPost` 업로드 검증** — **서버측 완료**(Phase 5): 타입(`image/*`)·크기(≤10MB)·개수(≤10) 검증 +
-  `length` 신뢰 제거. **클라이언트측 검증은 남음**(Phase 6/7에서 UX 차원).
+- [x] **`NewPost` 업로드 검증** — 서버측(Phase 5) + **클라이언트측(Phase 7)**: 공통 `selectFiles` 헬퍼로
+  타입(`image/*`)·크기(≤10MB)·개수(≤10) 검증, 위반 시 에러 메시지 표시.
 - [x] **(P2/P3) 슬라이드 루프의 `key={index}`** (`PostDetail`) — `key={img}`(이미지 URL)로 교체.
   Phase 6에서 완료.
 
@@ -121,10 +121,11 @@ Junsgram 프로젝트(인스타그램 스타일 사진 공유 앱)의 전면 리
 
 > P3에서 상향: 전면 리뉴얼 포트폴리오 레포에서 테스트 + CI는 핵심 어필 포인트.
 
-- [ ] **테스트 전무** — 서비스/훅 단위 테스트(Vitest)와 핵심 플로우(로그인, 게시물 생성, 좋아요, 댓글,
-  팔로우) 컴포넌트/E2E 테스트(Playwright) 추가.
-- [ ] **CI** — PR마다 lint + 타입체크 + 테스트.
-- [x] **`.env.example`** — Phase 2에서 추가 (필요한 환경변수 문서화). README 설치/실행 가이드는 남음.
+- [~] **테스트** — Vitest 도입 + `lib`(validation/fetcher/http) 단위 테스트 14개(인젝션 차단 정규식,
+  fetcher의 non-2xx throw, serverError의 업스트림 status 전달 검증). Phase 7에서 완료.
+  핵심 플로우 Playwright E2E는 OAuth 모킹이 필요해 **남김**.
+- [x] **CI** — `.github/workflows/ci.yml`: PR/푸시마다 typecheck + test + build. lint(flat config)는 추후.
+- [x] **`.env.example` + README** — env 문서화(Phase 2) + README 설치/실행/스크립트 가이드 작성(Phase 7).
 
 ---
 
@@ -176,6 +177,9 @@ Junsgram 프로젝트(인스타그램 스타일 사진 공유 앱)의 전면 리
 - 이관: 주석 전면 영어화·매직 스트링 상수화는 보류, ESLint flat config는 Phase 7(CI와 함께).
   클라이언트측 업로드 검증은 Phase 7(UX).
 
-### Phase 7 — 성능, UX, 테스트 & CI
-- 페이지네이션/무한 스크롤, 로딩/에러 바운더리, 접근성, 이미지 최적화.
-- Vitest + Playwright 테스트 스위트; CI(PR마다 lint + 타입체크 + 테스트); README.
+### Phase 7 — 테스트 & 도구 (1차 완료) / 성능·UX (남음)
+- [x] Vitest 도입 + `lib` 단위 테스트 14개; CI(typecheck+test+build); README; 클라이언트측 업로드 검증.
+- [ ] **남은 성능/UX (별도 작업 — 설계 결정/브라우저 검증 필요):**
+  - 캐싱 전략(Sanity CDN + 태그 재검증), 피드/프로필 페이지네이션·무한 스크롤
+  - 로딩/에러 바운더리·스켈레톤, 스피너 통일, 접근성 sweep, 이미지 `sizes`/반응형 너비
+  - Playwright E2E(OAuth 모킹), ESLint flat config + lint를 CI에 추가, 매직 스트링 상수화
