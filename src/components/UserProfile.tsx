@@ -1,14 +1,13 @@
 import { ProfileUser } from '@/model/user';
 import Avatar from './Avatar';
 import FollowButton from './FollowButton';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { auth } from '@/auth';
 
 type Props = {
   user: ProfileUser;
 };
 export default async function UserProfile({ user }: Props) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const loginUser = session?.user;
 
   const { image, username, name, followers, following, posts } = user;

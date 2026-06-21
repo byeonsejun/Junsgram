@@ -10,10 +10,16 @@ import { useRouter } from 'next/navigation';
 import GridSpinner from './ui/GridSpinner';
 import ImageSlide from './ui/ImageSlide';
 import TextDropEffect from './ui/TextDropEffect';
+import { API } from '@/lib/routes';
 
 type Props = {
   user: AuthUser;
 };
+
+// Keep these in sync with the server-side checks in /api/posts.
+const MAX_PHOTOS = 10;
+const MAX_PHOTO_BYTES = 10 * 1024 * 1024; // 10MB
+
 export default function NewPost({ user: { username, image } }: Props) {
   const [dragging, setDragging] = useState(false);
   const [files, setFiles] = useState<FileList | null>();
@@ -24,20 +30,29 @@ export default function NewPost({ user: { username, image } }: Props) {
   const textRef = useRef<HTMLTextAreaElement | null>(null);
   const router = useRouter();
 
+  // Validate then accept a selection from either the file input or drag&drop.
+  const selectFiles = (selected: FileList | null) => {
+    if (selected == null || selected.length === 0) return;
+
+    const list = Array.from(selected);
+    if (list.length > MAX_PHOTOS) {
+      setError(`최대 ${MAX_PHOTOS}장까지 업로드할 수 있습니다.`);
+      return;
+    }
+    const invalid = list.find((file) => !file.type.startsWith('image/') || file.size > MAX_PHOTO_BYTES);
+    if (invalid) {
+      setError('이미지 파일만, 각 10MB 이하로 업로드할 수 있습니다.');
+      return;
+    }
+
+    setError('');
+    setFiles(selected);
+    setFileUrls(list.map((file) => URL.createObjectURL(file)));
+  };
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
-
-    const selectFiles: FileList | null = e.target?.files;
-
-    // console.log('파일직접선택시');
-
-    if (selectFiles == null) return;
-    setFiles(selectFiles);
-
-    const urls: string[] = Array.from(selectFiles).map((file: File) => {
-      return URL.createObjectURL(file); // 각 파일에 대한 URL 생성
-    });
-    setFileUrls(urls);
+    selectFiles(e.target?.files ?? null);
   };
   const handleDrag = (e: React.DragEvent) => {
     if (e.type === 'dragenter') {
@@ -52,17 +67,7 @@ export default function NewPost({ user: { username, image } }: Props) {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragging(false);
-
-    const selectFiles: FileList | null = e.dataTransfer?.files;
-    // console.log('파일드랍시');
-
-    if (selectFiles == null) return;
-    setFiles(selectFiles);
-
-    const urls: string[] = Array.from(selectFiles).map((file: File) => {
-      return URL.createObjectURL(file); // 각 파일에 대한 URL 생성
-    });
-    setFileUrls(urls);
+    selectFiles(e.dataTransfer?.files ?? null);
   };
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -82,7 +87,7 @@ export default function NewPost({ user: { username, image } }: Props) {
 
     setLoading(true);
 
-    fetch('/api/posts/', { method: 'POST', body: formData })
+    fetch(API.posts, { method: 'POST', body: formData })
       .then((res) => {
         if (!res.ok) {
           setError(`${res.status} ${res.statusText}`);

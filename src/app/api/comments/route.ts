@@ -1,31 +1,48 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { addComment, deleteComment } from '@/service/posts';
-import { withSessionUser } from '@/util/session';
+import { addComment, deleteComment, getCommentContext } from '@/service/posts';
+import { isAdmin, withSessionUser } from '@/util/session';
+import { badRequest, forbidden, notFound, serverError } from '@/lib/http';
+import { addCommentSchema, deleteCommentSchema } from '@/lib/validation';
 
 export async function POST(req: NextRequest) {
   return withSessionUser(async (user) => {
-    const { id, comment } = await req.json();
-
-    if (!id || comment == null) {
-      return new Response('Bad Request', { status: 400 });
+    const parsed = addCommentSchema.safeParse(await req.json().catch(() => null));
+    if (!parsed.success) {
+      return badRequest();
     }
+    const { id, comment } = parsed.data;
 
     return addComment(id, user.id, comment) //
       .then((res) => NextResponse.json(res))
-      .catch((error) => new Response(JSON.stringify(error), { status: 500 }));
+      .catch(serverError);
   });
 }
 
 export async function PUT(req: NextRequest) {
-  return withSessionUser(async () => {
-    const { id, key } = await req.json();
+  return withSessionUser(async (user) => {
+    const parsed = deleteCommentSchema.safeParse(await req.json().catch(() => null));
+    if (!parsed.success) {
+      return badRequest();
+    }
+    const { id, key } = parsed.data;
 
-    if (!id || key == null) {
-      return new Response('Bad Request', { status: 400 });
+    // Authorization: the seed comment (index 0) is undeletable; otherwise only
+    // an admin, the post author, or the comment author may delete a comment.
+    const context = await getCommentContext(id, key);
+    if (!context || !context.commentAuthorId) {
+      return notFound();
+    }
+    if (key === context.firstCommentKey) {
+      return forbidden();
+    }
+    const canDelete =
+      isAdmin(user.username) || user.id === context.postAuthorId || user.id === context.commentAuthorId;
+    if (!canDelete) {
+      return forbidden();
     }
 
     return deleteComment(id, key) //
       .then((res) => NextResponse.json(res))
-      .catch((error) => new Response(JSON.stringify(error), { status: 500 }));
+      .catch(serverError);
   });
 }

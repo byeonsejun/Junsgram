@@ -1,16 +1,16 @@
-import { getServerSession } from 'next-auth';
-import { authOptions } from './api/auth/[...nextauth]/route';
+import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import SideBar from '@/components/SideBar';
 import PostList from '@/components/PostList';
 import FollowingBar from '@/components/FollowingBar';
+import { API } from '@/lib/routes';
 
 export default async function Home() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user;
 
   if (!user) {
-    redirect('/api/auth/signin');
+    redirect(API.signin);
   }
 
   return (

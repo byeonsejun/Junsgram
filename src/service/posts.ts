@@ -1,4 +1,4 @@
-import { SimplePost } from '@/model/post';
+import { GetFullPost, SimplePost } from '@/model/post';
 import { client, urlFor } from './sanity';
 const simplePostProjection = `
   ...,
@@ -13,23 +13,24 @@ const simplePostProjection = `
 `; // post.author.username -> post.username
 // [ { asset: {_ref: 'image-400e9a09266fbca8b94ee9ca82900f41a88b2d45-18x34-png'}, _key: 'photo_0_1703674479864' }, { asset: {_ref: 'image-400e9a09266fbca8b94ee9ca82900f41a88b2d45-18x34-png'}, _key: 'photo_0_1703674479864' } ]
 
-export async function getFollowingPostsOf(username: string) {
+export async function getFollowingPostsOf(username: string): Promise<SimplePost[]> {
   return client
     .fetch(
       `
-      *[_type == "post" && author->username == "${username}"
-      || author._ref in *[_type == "user" && username == "${username}"].following[]._ref]
+      *[_type == "post" && (author->username == $username
+      || author._ref in *[_type == "user" && username == $username].following[]._ref)]
       | order(_createdAt desc){${simplePostProjection}}
-    `
+    `,
+      { username }
     )
     .then(mapPosts);
 }
 
-export async function getPost(id: string) {
+export async function getPost(id: string): Promise<GetFullPost> {
   return client
     .fetch(
       `
-    *[_type == "post" && _id == "${id}"][0]{
+    *[_type == "post" && _id == $id][0]{
       ...,
       "username": author->username,
       "userImage": author->image,
@@ -44,41 +45,45 @@ export async function getPost(id: string) {
       "id":_id,
       "createdAt":_createdAt
     }
-  `
+  `,
+      { id }
     )
     .then((post) => ({ ...post, image: mapPost(post) }));
 }
 // ({ ...post, image: urlFor(post.image) })
-export async function getPostsOf(username: string) {
+export async function getPostsOf(username: string): Promise<SimplePost[]> {
   return client
     .fetch(
-      `*[_type == "post" && author->username == "${username}"]
+      `*[_type == "post" && author->username == $username]
       | order(_createdAt desc){
         ${simplePostProjection}
       }
-    `
+    `,
+      { username }
     )
     .then(mapPosts);
 }
-export async function getLikedOf(username: string) {
+export async function getLikedOf(username: string): Promise<SimplePost[]> {
   return client
     .fetch(
-      `*[_type == "post" && "${username}" in likes[]->username]
+      `*[_type == "post" && $username in likes[]->username]
       | order(_createdAt desc){
         ${simplePostProjection}
       }
-    `
+    `,
+      { username }
     )
     .then(mapPosts);
 }
-export async function getSavedPostsOf(username: string) {
+export async function getSavedPostsOf(username: string): Promise<SimplePost[]> {
   return client
     .fetch(
-      `*[_type == "post" && _id in *[_type == "user" && username == "${username}"].bookmarks[]._ref]
+      `*[_type == "post" && _id in *[_type == "user" && username == $username].bookmarks[]._ref]
       | order(_createdAt desc){
         ${simplePostProjection}
       }
-    `
+    `,
+      { username }
     )
     .then(mapPosts);
 }
@@ -142,9 +147,6 @@ export async function deleteComment(postId: string, key: string) {
 }
 
 export async function createPost(userId: string, text: string, blobArray: Blob[]) {
-  // console.log('포스트 생성시 새니티 통신');
-
-  // Blob들을 저장할 배열
   const uploadPromises: Promise<string>[] = [];
 
   // Blob 배열의 각 Blob을 순회하면서 업로드 작업을 Promise 배열에 추가합니다.
@@ -179,16 +181,43 @@ export async function createPost(userId: string, text: string, blobArray: Blob[]
 
 export async function getBookmarkOf(postId: string) {
   return client.fetch(
-    `*[_type == "user" && "${postId}" in bookmarks[]._ref] {
-      "filterInfo": bookmarks[_ref == "${postId}"] {
+    `*[_type == "user" && $postId in bookmarks[]._ref] {
+      "filterInfo": bookmarks[_ref == $postId] {
         "postIdValue": _ref,
         "userIdValue": ^._id
       }
     }
-    `
+    `,
+    { postId }
   );
 }
 
 export async function deletePost(postId: string) {
   return client.delete(postId);
+}
+
+// Authorization helpers (server-side ownership checks) -----------------------
+
+// The author reference (user _id) of a post, or null if the post doesn't exist.
+export async function getPostAuthorId(postId: string): Promise<string | null> {
+  return client.fetch(`*[_type == "post" && _id == $postId][0].author._ref`, { postId });
+}
+
+type CommentContext = {
+  postAuthorId: string | null;
+  firstCommentKey: string | null;
+  commentAuthorId: string | null;
+};
+
+// Context needed to authorize a comment deletion: post author, first-comment
+// key (the seed comment can't be deleted), and the target comment's author.
+export async function getCommentContext(postId: string, key: string): Promise<CommentContext | null> {
+  return client.fetch(
+    `*[_type == "post" && _id == $postId][0]{
+      "postAuthorId": author._ref,
+      "firstCommentKey": comments[0]._key,
+      "commentAuthorId": comments[_key == $key][0].author._ref
+    }`,
+    { postId, key }
+  );
 }

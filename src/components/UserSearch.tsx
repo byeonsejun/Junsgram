@@ -53,7 +53,7 @@ export default function UserSearch() {
       <ul className="w-full p-4">
         {users &&
           users.map((user) => (
-            <li key={user.email} className="mb-2">
+            <li key={user.id} className="mb-2">
               <UserCard user={user} />
             </li>
           ))}

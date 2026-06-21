@@ -1,19 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dislikePost, likePost } from '@/service/posts';
 import { withSessionUser } from '@/util/session';
+import { badRequest, serverError } from '@/lib/http';
+import { likeSchema } from '@/lib/validation';
 
 export async function PUT(req: NextRequest) {
   return withSessionUser(async (user) => {
-    const { id, like } = await req.json();
-
-    if (!id || like == null) {
-      return new Response('Bad Request', { status: 400 });
+    const parsed = likeSchema.safeParse(await req.json().catch(() => null));
+    if (!parsed.success) {
+      return badRequest();
     }
+    const { id, like } = parsed.data;
 
     const request = like ? likePost : dislikePost;
 
     return request(id, user.id) //
       .then((res) => NextResponse.json(res))
-      .catch((error) => new Response(JSON.stringify(error), { status: 500 }));
+      .catch(serverError);
   });
 }

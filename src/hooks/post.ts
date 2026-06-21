@@ -1,27 +1,29 @@
 import { Comment, FullPost, GetComment, GetFullPost } from '@/model/post';
+import { fetcher } from '@/lib/fetcher';
+import { API } from '@/lib/routes';
 import { useCallback } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 
+// Resolved values are discarded (mutate uses populateCache: false); typed as
+// GetFullPost only to satisfy SWR's mutate signature.
 async function addComment(id: string, comment: string) {
-  return fetch('/api/comments', {
+  return fetcher<GetFullPost>(API.comments, {
     method: 'POST',
     body: JSON.stringify({ id, comment }),
-  }).then((res) => res.json());
+  });
 }
 
 async function removeComment(id: string, key: string) {
-  return fetch('/api/comments', {
+  return fetcher<GetFullPost>(API.comments, {
     method: 'PUT',
     body: JSON.stringify({ id, key }),
-  }).then((res) => res.json());
+  });
 }
 
 export default function useDetailPost(postId: string) {
-  const { data: post, isLoading, error, mutate } = useSWR<GetFullPost>(`/api/posts/${postId}`);
+  const { data: post, isLoading, error, mutate } = useSWR<GetFullPost>(API.post(postId));
 
   const { mutate: globalMutate } = useSWRConfig();
-
-  // console.log(post); // 풀 포스트 = 한개의 대한 모든 디테일 포스트정보
 
   const postComment = useCallback(
     (comment: Comment) => {
@@ -37,7 +39,7 @@ export default function useDetailPost(postId: string) {
         populateCache: false, // api response로 반환된 값을 캐시에 덮어씌우지 않음 (왜냐하면 이미 클라쪽 값이 있기때문 )
         revalidate: true, // true 시 == _key값이 새니티상에서 생성되고 다시 가져와야하기때문에 // false 시 == 이미 ui가 원하는 상태로 변경되었으니 백그라운드에서 다시 가져올 필요가 없음
         rollbackOnError: true, // update시 네트워크 문제 생기면 데이터 롤백 옵션
-      }).then(() => globalMutate('/api/posts'));
+      }).then(() => globalMutate(API.posts));
     },
     [post, mutate, globalMutate]
   );
@@ -58,7 +60,7 @@ export default function useDetailPost(postId: string) {
         populateCache: false,
         revalidate: false,
         rollbackOnError: true,
-      }).then(() => globalMutate('/api/posts'));
+      }).then(() => globalMutate(API.posts));
     },
     [post, mutate, globalMutate]
   );

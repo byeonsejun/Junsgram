@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getLikedOf, getPostsOf, getSavedPostsOf } from '@/service/posts';
 type Context = {
-  params: {
+  params: Promise<{
     slug: string[]; // [ 'qustpwns93', 'posts' ]
-  };
+  }>;
 };
 export async function GET(_: NextRequest, context: Context) {
-  const { slug } = context.params;
+  const { slug } = await context.params;
   if (!slug || !Array.isArray(slug) || slug.length < 2) {
     return new NextResponse('Bad Request', { status: 400 });
   }

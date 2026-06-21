@@ -91,12 +91,12 @@ export default function PostDetail({ post }: Props) {
           ) : (
             <ImageSlide>
               {data &&
-                data.image.map((img, index) => (
-                  <div className="w-full h-full aspect-square relative" key={index}>
+                data.image.map((img) => (
+                  <div className="w-full h-full aspect-square relative" key={img}>
                     <Image
                       className="object-contain p-2"
                       src={img}
-                      alt={`photo by ${data.username[index]}`}
+                      alt={`photo by ${data.username}`}
                       priority
                       fill
                       sizes="650px"
@@ -109,7 +109,11 @@ export default function PostDetail({ post }: Props) {
 
         <div className="w-full flex h-[60%] flex-col md:h-auto md:w-[60%] relative">
           {(adminAuth || postAuth) && (
-            <button className="absolute top-[10px] right-[10px] w-7 h-7" onClick={() => setShowMore(!showMore)}>
+            <button
+              className="absolute top-[10px] right-[10px] w-7 h-7"
+              aria-label="게시물 옵션"
+              onClick={() => setShowMore(!showMore)}
+            >
               <MoreIcon />
             </button>
           )}
@@ -142,6 +146,7 @@ export default function PostDetail({ post }: Props) {
                     {index !== 0 && (adminAuth || postAuth || user?.username === commentUsername) && (
                       <button
                         onClick={() => handleCommentDelete(key)}
+                        aria-label="댓글 삭제"
                         className="absolute right-0 top-[50%] translate-y-[-50%] md:right-[-20px]"
                       >
                         <CloseIcon />

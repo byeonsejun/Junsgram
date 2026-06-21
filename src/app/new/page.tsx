@@ -1,8 +1,8 @@
 import NewPost from '@/components/NewPost';
 import { Metadata } from 'next';
-import { getServerSession } from 'next-auth';
+import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
-import { authOptions } from '../api/auth/[...nextauth]/route';
+import { API } from '@/lib/routes';
 
 export const metadata: Metadata = {
   title: 'New Post',
@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 };
 
 export default async function NewPage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) {
-    redirect('/api/auth/signin');
+    redirect(API.signin);
   }
   return (
     <>
