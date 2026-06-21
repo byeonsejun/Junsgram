@@ -5,7 +5,7 @@ import Button from './ui/Button';
 import useMe from '@/hooks/me';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { PulseLoader } from 'react-spinners';
+import Spinner from './ui/Spinner';
 
 type Props = {
   user: ProfileUser;
@@ -38,7 +38,7 @@ export default function FollowButton({ user }: Props) {
         <div className="relative">
           {isUpdating && (
             <div className="absolute z-20 inset-0 flex justify-center items-center">
-              <PulseLoader size={6} />
+              <Spinner size="sm" />
             </div>
           )}
           <Button disabled={isUpdating} text={text} onClick={handleFollow} red={text === '팔로우 취소'} />

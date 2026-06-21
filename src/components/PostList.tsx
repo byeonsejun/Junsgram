@@ -1,6 +1,6 @@
 'use client';
 
-import { PropagateLoader } from 'react-spinners';
+import Spinner from './ui/Spinner';
 import PostListCard from './PostListCard';
 import usePosts from '@/hooks/posts';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
@@ -12,8 +12,8 @@ export default function PostList() {
   return (
     <section>
       {loading && (
-        <div className="text-center mt-32">
-          <PropagateLoader size={8} color="red" />
+        <div className="flex justify-center mt-32">
+          <Spinner size="lg" />
         </div>
       )}
       {posts && (
@@ -28,8 +28,8 @@ export default function PostList() {
       {/* 무한 스크롤 센티넬: 화면에 들어오면 다음 페이지를 불러온다. */}
       {!isReachingEnd && <div ref={sentinelRef} aria-hidden className="h-1" />}
       {isLoadingMore && !loading && (
-        <div className="text-center my-6">
-          <PropagateLoader size={8} color="red" />
+        <div className="flex justify-center my-6">
+          <Spinner />
         </div>
       )}
     </section>

@@ -1,4 +1,4 @@
-import GridSpinner from './ui/GridSpinner';
+import Spinner from './ui/Spinner';
 import PostGridCard from './PostGridCard';
 import usePosts from '@/hooks/posts';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
@@ -10,7 +10,11 @@ export default function PostGrid() {
 
   return (
     <div className="w-full text-center">
-      {isLoading && <GridSpinner />}
+      {isLoading && (
+        <div className="flex justify-center py-8">
+          <Spinner size="lg" />
+        </div>
+      )}
       <ul className="grid grid-cols-3 gap-4 py-4 px-8">
         {posts &&
           posts.map((post, index) => (
@@ -22,7 +26,11 @@ export default function PostGrid() {
       {posts?.length === 0 && <h3 className="text-white text-center pb-8 md:mt-24">해당 게시물이 없습니다.</h3>}
       {/* 무한 스크롤 센티넬 */}
       {!isReachingEnd && <div ref={sentinelRef} aria-hidden className="h-1" />}
-      {isLoadingMore && !isLoading && <GridSpinner />}
+      {isLoadingMore && !isLoading && (
+        <div className="flex justify-center py-4">
+          <Spinner />
+        </div>
+      )}
     </div>
   );
 }

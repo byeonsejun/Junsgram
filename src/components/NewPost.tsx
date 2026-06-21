@@ -7,7 +7,7 @@ import Button from './ui/Button';
 import { ChangeEvent, FormEvent, MouseEvent, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import GridSpinner from './ui/GridSpinner';
+import Spinner from './ui/Spinner';
 import ImageSlide from './ui/ImageSlide';
 import TextDropEffect from './ui/TextDropEffect';
 import { API } from '@/lib/routes';
@@ -113,8 +113,8 @@ export default function NewPost({ user: { username, image } }: Props) {
   return (
     <section className="w-full max-w-xl flex flex-col items-center mt-6 px-4">
       {loading && (
-        <div className="absolute inset-0 z-20 text-center pt-[30%] bg-sky-500/20">
-          <GridSpinner />
+        <div className="absolute inset-0 z-20 flex justify-center pt-[30%] bg-sky-500/20">
+          <Spinner size="lg" />
         </div>
       )}
       {error && <p className="w-full bg-red-100 text-red-600 text-center p-4 mb-4 font-bold">{error}</p>}
