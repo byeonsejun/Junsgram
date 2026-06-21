@@ -35,6 +35,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# playwright
+/test-results
+/playwright-report
+/blob-report
+/playwright/.cache
+
 # local working notes (not part of the deliverable)
 REFACTORING.md
 HANDOFF.md

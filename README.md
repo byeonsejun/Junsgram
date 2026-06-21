@@ -58,6 +58,8 @@ npm run dev      # http://localhost:3000
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm test` | Run the Vitest suite |
 | `npm run test:watch` | Vitest in watch mode |
+| `npm run test:e2e` | Run the Playwright E2E suite (builds + serves the app) |
+| `npm run seed` | Seed dummy posts into Sanity (`-- --count=N`, `--clean`) |
 
 ## Project Structure
 
