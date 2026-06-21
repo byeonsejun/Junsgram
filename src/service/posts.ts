@@ -1,4 +1,5 @@
 import { GetFullPost, SimplePost } from '@/model/post';
+import { pageRange } from '@/lib/pagination';
 import { client, urlFor } from './sanity';
 const simplePostProjection = `
   ...,
@@ -13,13 +14,16 @@ const simplePostProjection = `
 `; // post.author.username -> post.username
 // [ { asset: {_ref: 'image-400e9a09266fbca8b94ee9ca82900f41a88b2d45-18x34-png'}, _key: 'photo_0_1703674479864' }, { asset: {_ref: 'image-400e9a09266fbca8b94ee9ca82900f41a88b2d45-18x34-png'}, _key: 'photo_0_1703674479864' } ]
 
-export async function getFollowingPostsOf(username: string): Promise<SimplePost[]> {
+// `page` selects a slice of the feed (ranged GROQ) for infinite scroll. The
+// bounds are derived from a validated integer, so inlining them is injection-safe.
+export async function getFollowingPostsOf(username: string, page = 0): Promise<SimplePost[]> {
+  const { start, end } = pageRange(page);
   return client
     .fetch(
       `
       *[_type == "post" && (author->username == $username
       || author._ref in *[_type == "user" && username == $username].following[]._ref)]
-      | order(_createdAt desc){${simplePostProjection}}
+      | order(_createdAt desc)[${start}...${end}]{${simplePostProjection}}
     `,
       { username }
     )
@@ -51,11 +55,12 @@ export async function getPost(id: string): Promise<GetFullPost> {
     .then((post) => ({ ...post, image: mapPost(post) }));
 }
 // ({ ...post, image: urlFor(post.image) })
-export async function getPostsOf(username: string): Promise<SimplePost[]> {
+export async function getPostsOf(username: string, page = 0): Promise<SimplePost[]> {
+  const { start, end } = pageRange(page);
   return client
     .fetch(
       `*[_type == "post" && author->username == $username]
-      | order(_createdAt desc){
+      | order(_createdAt desc)[${start}...${end}]{
         ${simplePostProjection}
       }
     `,
@@ -63,11 +68,12 @@ export async function getPostsOf(username: string): Promise<SimplePost[]> {
     )
     .then(mapPosts);
 }
-export async function getLikedOf(username: string): Promise<SimplePost[]> {
+export async function getLikedOf(username: string, page = 0): Promise<SimplePost[]> {
+  const { start, end } = pageRange(page);
   return client
     .fetch(
       `*[_type == "post" && $username in likes[]->username]
-      | order(_createdAt desc){
+      | order(_createdAt desc)[${start}...${end}]{
         ${simplePostProjection}
       }
     `,
@@ -75,11 +81,12 @@ export async function getLikedOf(username: string): Promise<SimplePost[]> {
     )
     .then(mapPosts);
 }
-export async function getSavedPostsOf(username: string): Promise<SimplePost[]> {
+export async function getSavedPostsOf(username: string, page = 0): Promise<SimplePost[]> {
+  const { start, end } = pageRange(page);
   return client
     .fetch(
       `*[_type == "post" && _id in *[_type == "user" && username == $username].bookmarks[]._ref]
-      | order(_createdAt desc){
+      | order(_createdAt desc)[${start}...${end}]{
         ${simplePostProjection}
       }
     `,

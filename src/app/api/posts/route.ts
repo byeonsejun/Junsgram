@@ -4,6 +4,7 @@ import { isAdmin, withSessionUser } from '@/util/session';
 import { removeBookmark } from '@/service/user';
 import { badRequest, forbidden, notFound, serverError } from '@/lib/http';
 import { deletePostSchema } from '@/lib/validation';
+import { parsePageParam } from '@/lib/pagination';
 
 type SampleItem = {
   filterInfo: Array<{ postIdValue: string; userIdValue: string }>;
@@ -12,9 +13,10 @@ type SampleItem = {
 const MAX_PHOTOS = 10;
 const MAX_PHOTO_BYTES = 10 * 1024 * 1024; // 10MB per image
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const page = parsePageParam(req.nextUrl.searchParams);
   return withSessionUser(async (user) =>
-    getFollowingPostsOf(user.username) //
+    getFollowingPostsOf(user.username, page) //
       .then((data) => NextResponse.json(data))
       .catch(serverError)
   );
