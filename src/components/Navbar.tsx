@@ -53,7 +53,7 @@ export default function Navbar() {
       <nav className="xl:w-full xl:px-2">
         <ul className="flex gap-3 items-center p-1 xsm:p-4 xsm:gap-4 xl:flex-col xl:items-start xl:gap-6 xl:p-0">
           {menu.map((item) => (
-            <li key={item.href} className="xl:w-full xl:px-4 py-2 xl:hover:bg-gray-800/80 xl:rounded-xl">
+            <li key={item.href} className="xl:w-full xl:px-4 py-2 xl:hover:bg-white/5 xl:rounded-xl xl:transition-colors">
               <Link href={item.href} aria-label={item.title} className="xl:w-full xl:flex xl:items-end xl:gap-2 ">
                 {pathName === item.href ? item.clickedIcon : item.icon}
                 <p className={`hidden xl:inline xl:text-white ${pathName === item.href && 'font-bold'}`}>{item.text}</p>
@@ -61,7 +61,7 @@ export default function Navbar() {
             </li>
           ))}
           {user && ( //
-            <li className="xl:w-full xl:px-4 py-2 xl:hover:bg-gray-800/80 xl:rounded-xl">
+            <li className="xl:w-full xl:px-4 py-2 xl:hover:bg-white/5 xl:rounded-xl xl:transition-colors">
               <Link
                 href={`/user/${user.username}`}
                 aria-label="User page"

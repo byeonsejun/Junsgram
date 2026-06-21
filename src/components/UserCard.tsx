@@ -7,7 +7,10 @@ type Props = {
 };
 export default function UserCard({ user: { name, username, image, following, followers } }: Props) {
   return (
-    <Link href={`/user/${username}`} className="flex items-center w-full bg-black p-2 hover:bg-menu-bg">
+    <Link
+      href={`/user/${username}`}
+      className="flex items-center w-full p-2 rounded-xl hover:bg-white/5 transition-colors"
+    >
       <Avatar image={image} />
       <div className="text-neutral-500 ml-2">
         <p className="text-white font-bold mb-[2px] leading-4">{username}</p>

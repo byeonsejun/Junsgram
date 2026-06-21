@@ -11,7 +11,7 @@ export default function FollowingBar() {
   const users = user?.following;
 
   return (
-    <section className="w-full flex justify-center items-center p-4 mb-4 border border-white/70 rounded-md min-h-[90px] overflow-x-auto relative z-0">
+    <section className="w-full flex justify-center items-center p-4 mb-4 border border-white/10 rounded-xl bg-neutral-900/40 min-h-[90px] overflow-x-auto relative z-0">
       {isLoading ? (
         <Spinner />
       ) : (
