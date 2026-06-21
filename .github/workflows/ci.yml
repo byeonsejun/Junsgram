@@ -39,3 +39,26 @@ jobs:
           SANITY_STUDIO_SANITY_PROJECT_ID: dummy
           SANITY_STUDIO_SANITY_DATASET: production
           SANITY_SECRET_TOKEN: dummy
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        # Playwright builds + starts the app (placeholders below); session cookies
+        # are minted with AUTH_SECRET, so the value just has to match the server's.
+        run: npm run test:e2e
+        env:
+          AUTH_SECRET: e2e-ci-secret
