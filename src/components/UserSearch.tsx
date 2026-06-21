@@ -3,7 +3,7 @@
 import { SearchUser } from '@/model/user';
 import React, { FormEvent, useState } from 'react';
 import useSWR from 'swr';
-import GridSpinner from './ui/GridSpinner';
+import Spinner from './ui/Spinner';
 import UserCard from './UserCard';
 import useDebounce from '@/hooks/debounce';
 import SearchIcon from './ui/icons/SearchIcon';
@@ -48,7 +48,11 @@ export default function UserSearch() {
         )}
       </form>
       {error && <p>유저의 정보를 가져오는데 실패하였습니다.</p>}
-      {isLoading && <GridSpinner />}
+      {isLoading && (
+        <div className="flex justify-center py-8">
+          <Spinner size="lg" />
+        </div>
+      )}
       {!isLoading && !error && users?.length === 0 && <p>찾으시는 사용자가 없습니다.</p>}
       <ul className="w-full p-4">
         {users &&

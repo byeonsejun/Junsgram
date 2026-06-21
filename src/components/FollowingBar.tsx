@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { PropagateLoader } from 'react-spinners';
+import Spinner from './ui/Spinner';
 import Avatar from './Avatar';
 import ScrollableBar from './ui/ScrollableBar';
 import useMe from '@/hooks/me';
@@ -13,7 +13,7 @@ export default function FollowingBar() {
   return (
     <section className="w-full flex justify-center items-center p-4 mb-4 border border-white/70 rounded-md min-h-[90px] overflow-x-auto relative z-0">
       {isLoading ? (
-        <PropagateLoader size={8} color="red" />
+        <Spinner />
       ) : (
         (!users || users.length === 0) && <p>{`You don't have following`}</p>
       )}

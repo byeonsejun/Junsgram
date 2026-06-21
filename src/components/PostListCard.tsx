@@ -53,6 +53,7 @@ export default function PostListCard({ post, priority = false }: Props) {
               alt={`photo by ${username}`}
               width={500}
               height={500}
+              sizes="(max-width: 768px) 100vw, 600px"
               priority={priority}
               onPointerDown={handlePointerDown}
               onClick={handleImageClick}

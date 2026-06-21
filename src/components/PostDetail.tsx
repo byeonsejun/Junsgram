@@ -7,10 +7,9 @@ import useDetailPost from '@/hooks/post';
 import CloseIcon from './ui/icons/CloseIcon';
 import useMe from '@/hooks/me';
 import ImageSlide from './ui/ImageSlide';
-import { PropagateLoader } from 'react-spinners';
+import Spinner from './ui/Spinner';
 import MoreIcon from './ui/icons/MoreIcon';
 import { useState } from 'react';
-import GridSpinner from './ui/GridSpinner';
 import { useRouter, usePathname } from 'next/navigation';
 import usePosts from '@/hooks/posts';
 
@@ -68,8 +67,8 @@ export default function PostDetail({ post }: Props) {
 
   if (showLoading) {
     return (
-      <div className="absolute top-[50%] left-[50%] translate-x-[-50%]	translate-y-[-50%]	 ">
-        <GridSpinner />
+      <div className="absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]">
+        <Spinner size="lg" />
       </div>
     );
   } else {
@@ -87,7 +86,7 @@ export default function PostDetail({ post }: Props) {
         {/* img 영역 */}
         <div className="relative h-[40%] p-4 md:h-auto md:w-[60%]">
           {isLoading ? (
-            <PropagateLoader size={8} color="red" className="absolute top-[50%] left-[50%]" />
+            <Spinner className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2" />
           ) : (
             <ImageSlide>
               {data &&
@@ -99,7 +98,7 @@ export default function PostDetail({ post }: Props) {
                       alt={`photo by ${data.username}`}
                       priority
                       fill
-                      sizes="650px"
+                      sizes="(max-width: 768px) 100vw, 640px"
                     />
                   </div>
                 ))}
