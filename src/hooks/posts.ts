@@ -2,27 +2,28 @@ import { useCacheKeys } from '@/context/CacheKeysContext';
 import { Comment, SimplePost } from '@/model/post';
 import { fetcher } from '@/lib/fetcher';
 import { API } from '@/lib/routes';
+import { POSTS_PAGE_SIZE } from '@/lib/pagination';
 import { useCallback } from 'react';
-import useSWR from 'swr';
+import useSWRInfinite from 'swr/infinite';
 
 // Resolved values are discarded (mutate uses populateCache: false); typed as
-// SimplePost[] only to satisfy SWR's mutate signature.
+// the paged shape only to satisfy SWR's mutate signature.
 async function updateLike(id: string, like: boolean) {
-  return fetcher<SimplePost[]>(API.likes, {
+  return fetcher<SimplePost[][]>(API.likes, {
     method: 'PUT',
     body: JSON.stringify({ id, like }),
   });
 }
 
 async function addComment(id: string, comment: string) {
-  return fetcher<SimplePost[]>(API.comments, {
+  return fetcher<SimplePost[][]>(API.comments, {
     method: 'POST',
     body: JSON.stringify({ id, comment }),
   });
 }
 
 async function deleteTargetPost(postId: string) {
-  return fetcher<SimplePost[]>(API.posts, {
+  return fetcher<SimplePost[][]>(API.posts, {
     method: 'DELETE',
     body: JSON.stringify({ postId }),
   });
@@ -30,67 +31,110 @@ async function deleteTargetPost(postId: string) {
 
 export default function usePosts() {
   const cacheKeys = useCacheKeys();
+
+  // 무한 스크롤: 페이지 인덱스별로 `?page=N`을 붙여 ranged 쿼리를 요청한다.
+  // 이전 페이지가 비어 있으면 더 가져올 게 없으므로 키를 끊는다(null).
+  const getKey = useCallback(
+    (index: number, previousPageData: SimplePost[] | null) => {
+      if (previousPageData && previousPageData.length === 0) return null;
+      const base = cacheKeys.postsKey;
+      const sep = base.includes('?') ? '&' : '?';
+      return `${base}${sep}page=${index}`;
+    },
+    [cacheKeys.postsKey]
+  );
+
   const {
-    data: posts, //
+    data: pages, //
+    size,
+    setSize,
     isLoading,
     error,
     mutate,
-  } = useSWR<SimplePost[]>(cacheKeys.postsKey);
+  } = useSWRInfinite<SimplePost[]>(getKey, {
+    // 옵티미스틱 갱신이 잦으므로 mutate 때마다 1페이지를 재검증하지 않는다.
+    revalidateFirstPage: false,
+  });
+
+  // 페이지 배열을 평탄화해 기존 소비처(렌더)가 그대로 단일 배열을 쓰게 한다.
+  const posts = pages ? pages.flat() : undefined;
+  const lastPage = pages?.[pages.length - 1];
+  // 마지막 페이지가 한 페이지 분량보다 적으면 끝에 도달한 것.
+  const isReachingEnd = !!pages && (lastPage?.length ?? 0) < POSTS_PAGE_SIZE;
+  // 아직 로드되지 않은 다음 페이지를 기다리는 중인지.
+  const isLoadingMore = isLoading || (size > 0 && !!pages && typeof pages[size - 1] === 'undefined');
+
+  const loadMore = useCallback(() => {
+    if (isLoadingMore || isReachingEnd) return;
+    setSize((prev) => prev + 1);
+  }, [isLoadingMore, isReachingEnd, setSize]);
+
+  // 평탄화된 단일 post 변경을 모든 페이지에 매핑해 옵티미스틱 데이터를 만든다.
+  const mapPages = useCallback(
+    (transform: (post: SimplePost) => SimplePost | null) =>
+      pages?.map((page) => page.map(transform).filter((p): p is SimplePost => p !== null)),
+    [pages]
+  );
 
   const setLike = useCallback(
     (post: SimplePost, username: string, like: boolean) => {
-      // likes: // like눌렀다면 [기존배열 + 내이름] , 취소 눌렀다면 [배열에서 내이름 뺀거 리턴]
-      const newPost = {
-        ...post,
-        likes: like ? [...post.likes, username] : post.likes.filter((item) => item !== username),
-      };
-      // 서버에서 받아온 posts정보들 => 서버포스트.id === 파람스포스트.id 같다면 ui변경된 포스트로!! 아니라면 기존 포스트
-      const newPosts = posts?.map((p) => (p.id === post.id ? newPost : p));
+      // likes: like면 [기존배열 + 내이름], 취소면 [배열에서 내이름 뺀거]
+      const newPages = mapPages((p) =>
+        p.id === post.id
+          ? { ...p, likes: like ? [...p.likes, username] : p.likes.filter((item) => item !== username) }
+          : p
+      );
 
       return mutate(updateLike(post.id, like), {
-        // api fetch 반응이 오기 전 보여줄 ui data ( 왜냐하면 반응이 오고나서 ui 업데이트를 해준다면 ui변경이 느림 )
-        optimisticData: newPosts,
-        populateCache: false, // api response로 반환된 값을 캐시에 덮어씌우지 않음 (왜냐하면 이미 클라쪽 값이 있기때문 )
-        revalidate: false, // 이미 ui가 원하는 상태로 변경되었으니 백그라운드에서 다시 가져올 필요가 없음
-        rollbackOnError: true, // update시 네트워크 문제 생기면 데이터 롤백 옵션
+        // api fetch 반응이 오기 전 보여줄 ui data ( 반응 후 업데이트는 느리므로 )
+        optimisticData: newPages,
+        populateCache: false, // api response를 캐시에 덮어쓰지 않음 (이미 클라 값이 있음)
+        revalidate: false, // 이미 원하는 상태이니 백그라운드 재요청 불필요
+        rollbackOnError: true, // 네트워크 오류 시 롤백
       });
     },
-    [posts, mutate]
+    [mapPages, mutate]
   );
 
   const postComment = useCallback(
-    (post: SimplePost, comment: Comment) => {
-      const newPost = {
-        ...post,
-        comments: post.comments + 1,
-      };
-      // 서버에서 받아온 posts정보들 => 내가찾는 post라면 ui변경된 포스트로!! 아니라면 기존 포스트 그대로가져가는 배열 반환
-      const newPosts = posts?.map((p) => (p.id === post.id ? newPost : p));
+    (post: SimplePost, _comment: Comment) => {
+      const newPages = mapPages((p) => (p.id === post.id ? { ...p, comments: p.comments + 1 } : p));
 
-      return mutate(addComment(post.id, comment.comment), {
-        // api fetch 반응이 오기 전 보여줄 ui data ( 왜냐하면 반응이 오고나서 ui 업데이트를 해준다면 ui변경이 느림 )
-        optimisticData: newPosts,
-        populateCache: false, // api response로 반환된 값을 캐시에 덮어씌우지 않음 (왜냐하면 이미 클라쪽 값이 있기때문 )
-        revalidate: false, // 이미 ui가 원하는 상태로 변경되었으니 백그라운드에서 다시 가져올 필요가 없음
-        rollbackOnError: true, // update시 네트워크 문제 생기면 데이터 롤백 옵션
-      });
-    },
-    [posts, mutate]
-  );
-
-  const deletePost = useCallback(
-    (postId: string) => {
-      if (!postId) return;
-      const newPost = posts?.filter((post) => post.id !== postId);
-      return mutate(deleteTargetPost(postId), {
-        optimisticData: newPost,
+      return mutate(addComment(post.id, _comment.comment), {
+        optimisticData: newPages,
         populateCache: false,
         revalidate: false,
         rollbackOnError: true,
       });
     },
-    [posts, mutate]
+    [mapPages, mutate]
   );
 
-  return { posts, isLoading, error, setLike, postComment, deletePost };
+  const deletePost = useCallback(
+    (postId: string) => {
+      if (!postId) return;
+      // 해당 post를 모든 페이지에서 제거(null 반환 → filter)
+      const newPages = mapPages((p) => (p.id === postId ? null : p));
+
+      return mutate(deleteTargetPost(postId), {
+        optimisticData: newPages,
+        populateCache: false,
+        revalidate: false,
+        rollbackOnError: true,
+      });
+    },
+    [mapPages, mutate]
+  );
+
+  return {
+    posts,
+    isLoading,
+    isLoadingMore,
+    isReachingEnd,
+    loadMore,
+    error,
+    setLike,
+    postComment,
+    deletePost,
+  };
 }

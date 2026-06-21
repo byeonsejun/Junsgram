@@ -3,7 +3,7 @@
 import { Comment, SimplePost } from '@/model/post';
 import Image from 'next/image';
 import ActionBar from './ActionBar';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import PostModal from './PostModal';
 import PostDetail from './PostDetail';
 import PostUserAvatar from './PostUserAvatar';
@@ -24,6 +24,22 @@ export default function PostListCard({ post, priority = false }: Props) {
     postComment(post, comment);
   };
 
+  // 드래그(슬라이드)와 클릭(모달 열기) 구분: 포인터를 내린 위치 대비 이동 거리가
+  // 임계값을 넘으면 드래그로 보고 클릭(모달 오픈)을 무시한다.
+  const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
+  const DRAG_THRESHOLD = 10; // px
+  const handlePointerDown = (e: React.PointerEvent) => {
+    pointerDownPos.current = { x: e.clientX, y: e.clientY };
+  };
+  const handleImageClick = (e: React.MouseEvent) => {
+    const start = pointerDownPos.current;
+    if (start) {
+      const moved = Math.abs(e.clientX - start.x) > DRAG_THRESHOLD || Math.abs(e.clientY - start.y) > DRAG_THRESHOLD;
+      if (moved) return; // 드래그였으므로 모달을 열지 않음
+    }
+    setOpenModal(true);
+  };
+
   return (
     <article className=" pb-2 border-b border-gray-200/50">
       <PostUserAvatar image={userImage} username={username} />
@@ -38,7 +54,8 @@ export default function PostListCard({ post, priority = false }: Props) {
               width={500}
               height={500}
               priority={priority}
-              onClick={() => setOpenModal(true)}
+              onPointerDown={handlePointerDown}
+              onClick={handleImageClick}
             />
           ))}
       </ImageSlide>

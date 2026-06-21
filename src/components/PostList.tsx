@@ -3,9 +3,12 @@
 import { PropagateLoader } from 'react-spinners';
 import PostListCard from './PostListCard';
 import usePosts from '@/hooks/posts';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 
 export default function PostList() {
-  const { posts, isLoading: loading } = usePosts();
+  const { posts, isLoading: loading, isLoadingMore, isReachingEnd, loadMore } = usePosts();
+  const sentinelRef = useInfiniteScroll(loadMore, !isReachingEnd);
+
   return (
     <section>
       {loading && (
@@ -21,6 +24,13 @@ export default function PostList() {
             </li>
           ))}
         </ul>
+      )}
+      {/* 무한 스크롤 센티넬: 화면에 들어오면 다음 페이지를 불러온다. */}
+      {!isReachingEnd && <div ref={sentinelRef} aria-hidden className="h-1" />}
+      {isLoadingMore && !loading && (
+        <div className="text-center my-6">
+          <PropagateLoader size={8} color="red" />
+        </div>
       )}
     </section>
   );
