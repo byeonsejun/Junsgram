@@ -13,9 +13,13 @@
 
 **Features:** infinite-scroll feed · post detail · likes · comments · bookmarks · follow/unfollow · user search · multi-image upload · admin moderation.
 
-<!-- 💡 Add 2–3 screenshots or a short GIF here (feed, post detail, profile) for maximum impact:
+## Screenshots
+
 ![Feed](docs/feed.png)
--->
+
+| Sign in | Profile |
+| :---: | :---: |
+| ![Sign in](docs/signin.png) | ![Profile](docs/profile.png) |
 
 ---
 
