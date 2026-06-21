@@ -18,7 +18,7 @@ export default async function UserProfile({ user }: Props) {
     { title: '팔로우', data: following },
   ];
   return (
-    <section className="w-full text-white flex flex-col md:flex-row items-center justify-center py-12 border-b border-white/30">
+    <section className="w-full text-white flex flex-col md:flex-row items-center justify-center py-12 border-b border-white/10">
       <Avatar image={image} highlight size="xlarge" />
       <div className="md:ml-10 basis-1/3">
         <div className="flex flex-col items-center md:flex-row">

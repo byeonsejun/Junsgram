@@ -31,7 +31,7 @@ export default function UserSearch() {
       <form className="w-full mb-4 relative px-4" onSubmit={onSubmit}>
         <SearchIcon type="user" />
         <input //
-          className="w-full text-xl p-3 px-10 text-white bg-black outline-none border border-white rounded-md "
+          className="w-full text-xl p-3 px-10 text-white bg-neutral-900 outline-none border border-white/15 rounded-xl transition-colors focus:border-white/40 placeholder:text-white/40 "
           type="text"
           autoFocus
           placeholder="검색"

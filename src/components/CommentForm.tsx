@@ -12,9 +12,9 @@ export default function CommentForm({ onPostComment, id }: Props) {
     setComment('');
   };
   return (
-    <form onSubmit={handleSubmit} className="flex items-center mb-1">
+    <form onSubmit={handleSubmit} className="flex items-center mb-1 border-t border-white/10 pt-1">
       <input
-        className="grow ml-2 border-none bg-black outline-none p-2 text-white"
+        className="grow ml-2 border-none bg-transparent outline-none p-2 text-white placeholder:text-white/40"
         type="text"
         placeholder="댓글 달기..."
         required

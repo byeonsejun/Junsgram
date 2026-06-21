@@ -37,7 +37,9 @@ export default function PostModal({ children, onClose }: Props) {
       <button className="fixed top-0 right-0 text-white p-2 md:p-8" aria-label="닫기" onClick={() => onClose()}>
         <CloseIcon />
       </button>
-      <div className="bg-black w-[90%] h-[85%] max-w-7xl md:w-[80%] md:h-3/5">{children}</div>
+      <div className="bg-neutral-950 rounded-2xl border border-white/10 overflow-hidden w-[90%] h-[85%] max-w-7xl md:w-[80%] md:h-3/5">
+        {children}
+      </div>
     </section>
   );
 }
